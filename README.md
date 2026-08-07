@@ -1,0 +1,1 @@
+08/07/26 - Began work on Lexer. Created structs for Str, which essentially operates as a string wrapper with pointer to character array and a size_t for length, and Token which contains a Str type and a TOKEN_TYPE enum. As well as created functions to check if a character is a delimiter and a sliceString function to create Str structs out of char arrays.
