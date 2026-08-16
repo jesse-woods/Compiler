@@ -1,1 +1,4 @@
 08/07/26 - Began work on Lexer. Created structs for Str, which essentially operates as a string wrapper with pointer to character array and a size_t for length, and Token which contains a Str type and a TOKEN_TYPE enum. As well as created functions to check if a character is a delimiter and a sliceString function to create Str structs out of char arrays.
+
+08/16/26 - Added functions that return bools based on whether a token was a valid identifier, keyword, or operator.
+            Current thoughts: currently, there are 32 keywords listed, which is the same amount as the c89 standard. As this is an excersize, as opposed to an actual complier for use, we shall stop there. However, I'm aware that the current c23 standard now has 67. The keyword list is currently an array of character arrays that is iterated over one by one. I would like to look into different implementations in the future.

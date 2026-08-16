@@ -45,4 +45,8 @@ typedef struct
 }Token;
 static Str sliceString(char*, size_t, size_t);
 static bool isDelimiter(char);
+static bool isOperator(char);
+static bool isKeyword(const char *);
+static bool isValidIdentifier(const char *);
+
 #endif //COMPILER_LEXER_H
