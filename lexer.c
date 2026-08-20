@@ -1,4 +1,6 @@
 #include "lexer.h"
+
+#include <stdlib.h>
 #include <string.h>
 //
 // Created by jwoods on 8/6/26.
@@ -6,37 +8,24 @@
 
 
 
-/*------------------------------------------------------------
-Identifier                              [a-zA-Z_]\w*\b
-Constant                                [0-9]+\b
-int keyword                             int\b
-void keyword                            void\b
-return keyword                          return\b
-Open parenthesis                        \(
-Close parenthesis                       \)
-Open brace                              {
-Close brace                             }
-Semicolon                               ;
---------------------------------------------------------------*/
-Str sliceString(char* slicedString, const size_t start, const size_t end) {
-    Str slice;
-    slice.strSlice = slicedString + start;
-    slice.length = end - start;
-
-    return slice;
-}
-
-static bool isDelimiter(const char c)
-{
-    return c == '\0'|| c ==' '||c == '('|| c == ')'||c == '['|| c == ']' || c == '{'||
+bool isDelimiter(const char c) {
+    return c ==' '||c == '('|| c == ')'||c == '['|| c == ']' || c == '{'||
         c == '}' || c =='{'||c == '}'||c == '['||c == ']'||c == ';'||c == ',' ||
         c =='+' || c =='-' || c == '*' || c =='/' || c =='%' || c =='^';
 }
 
-static bool isOperator(const char c)
-{
-    return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^'||
-        c == '>' || c == '<' || c == '=';
+
+bool isOperator(const Str* op) {
+    if (op == nullptr || op->strSlice[0] == '\0' || isDelimiter(op->strSlice[0]) || op->length == 0)
+    {
+        return false;
+    }
+    else
+    {
+        const char c = op->strSlice[0];
+        return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^'||
+            c == '>' || c == '<' || c == '=';
+    }
 }
 /*-------------------------------------------------------------------------------
  *We shall start with 32 keywords, similar to the c89 standard.
@@ -44,30 +33,97 @@ static bool isOperator(const char c)
  *Current implementation is to search through keywords with a loop, in the future
  *perhaps its better to use a dictionary for purposes of speed.
  *------------------------------------------------------------------------------*/
-static bool isKeyword(const char* str)
+static bool isKeyword(const Str* str)
 {
-    const char* keywords[]
-        = { "auto",     "break",    "case",     "char",
-            "const",    "continue", "default",  "do",
-            "double",   "else",     "enum",     "extern",
-            "float",    "for",      "goto",     "if",
-            "int",      "long",     "register", "return",
-            "short",    "signed",   "sizeof",   "static",
-            "struct",   "switch",   "typedef",  "union",
-            "unsigned", "void",     "volatile", "while" };
-    for (int i = 0;
-         i < sizeof(keywords) / sizeof(keywords[0]); i++) {
-        if (strcmp(str, keywords[i]) == 0) {
+
+
+    constexpr size_t KEYWORD_COUNT = 32;
+    for (int i = 0; i < KEYWORD_COUNT; i++)
+    {
+        const char* keywords[]
+            = { "auto",     "break",    "case",     "char",
+                "const",    "continue", "default",  "do",
+                "double",   "else",     "enum",     "extern",
+                "float",    "for",      "goto",     "if",
+                "int",      "long",     "register", "return",
+                "short",    "signed",   "sizeof",   "static",
+                "struct",   "switch",   "typedef",  "union",
+                "unsigned", "void",     "volatile", "while" };
+        size_t len = 0;
+        while (keywords[i][len] != '\0')
+            len++;
+        if (compare(str, sliceString(keywords[i], 0, len))) {
             return true;
         }
-         }
+    }
     return false;
 }
 
-static bool isValidIdentifier(const char* str) {
-    return (str[0] != '0' && str[0] != '1' && str[0] != '2'
-            && str[0] != '3' && str[0] != '4'
-            && str[0] != '5' && str[0] != '6'
-            && str[0] != '7' && str[0] != '8'
-            && str[0] != '9' && !isDelimiter(str[0]));
+static bool isValidIdentifier(const Str* str) {
+    return (!isInteger(str) && !isDelimiter(str->strSlice[0]));
+}
+// check for an integer value
+static bool isInteger(const Str* str)
+{
+    if (str == NULL || str->strSlice[0] == '\0') {
+        return false;
+    }
+    int i = 0;
+    while (str->strSlice[i] == '0' || str->strSlice[i] == '1' || str->strSlice[i] == '2' || str->strSlice[i] == '3'
+        || str->strSlice[i] == '4' || str->strSlice[i] == '5' || str->strSlice[i] == '6' || str->strSlice[i] == '7'
+        || str->strSlice[i] == '8' || str->strSlice[i] == '9') {
+        i++;
+    }
+    return str->strSlice[i] == '\0';
+}
+
+// trims a substring from a given string's start and end
+// position
+const Str* sliceString(const char* slicedString, const size_t start, const size_t length){
+    if (slicedString == nullptr || *slicedString == '\0')
+    {
+        printf("Attempt to slice empty string.\n");
+        const Str returnStr = { .strSlice = nullptr, .length = 0, };
+        return &returnStr;
+    }
+    //const size_t subLength = length - start + 1;
+    const auto subStr = (char*)malloc((length + 1) * sizeof(char));
+    for (size_t i = 0; i < length; i++)
+    {
+        subStr[i] = slicedString[start + i];
+    }
+    subStr[length] = '\0';
+    const auto returnStr = (Str*)malloc((sizeof(subStr) + sizeof(size_t)));
+    returnStr->strSlice = subStr;
+    returnStr->length = length;
+
+    return returnStr;
+}
+static bool compare(const Str* str1, const Str* str2)
+{
+    if (str1 == nullptr || str2 == nullptr)
+    {
+        return false;
+    }
+
+    if (str1->length != str2->length)
+    {
+        return false;
+    }
+    for (size_t i = 0; i < str1->length; i++)
+    {
+
+        if (str1->strSlice[i] != str2->strSlice[i])
+        {
+            return false;
+        }
+    }
+    return true;
+}
+static void freeStr(const Str* str)
+{
+    if (str == nullptr)
+        return;
+    free(str->strSlice);
+    free((void *)str);
 }

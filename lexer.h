@@ -43,10 +43,13 @@ typedef struct
     enum TOKEN_TYPE type;
     Str token;
 }Token;
-static Str sliceString(char*, size_t, size_t);
+const Str* sliceString(const char* , size_t, size_t);
 static bool isDelimiter(char);
-static bool isOperator(char);
-static bool isKeyword(const char *);
-static bool isValidIdentifier(const char *);
+bool isOperator(const Str*);
+static bool isKeyword(const Str*);
+static bool isValidIdentifier(const Str *);
+static bool isInteger(const Str *);
+static bool compare(const Str*, const Str*);
+static void freeStr(const Str*);
 
 #endif //COMPILER_LEXER_H
