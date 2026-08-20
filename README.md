@@ -2,3 +2,5 @@
 
 08/16/26 - Added functions that return bools based on whether a token was a valid identifier, keyword, or operator.
             Current thoughts: currently, there are 32 keywords listed, which is the same amount as the c89 standard. As this is an excersize, as opposed to an actual complier for use, we shall stop there. However, I'm aware that the current c23 standard now has 67. The keyword list is currently an array of character arrays that is iterated over one by one. I would like to look into different implementations in the future.
+
+08/20/26 - Fixed a lot of the logic in all functions, particularly making use of Str struct for string storage. Created a freeStr function as well as a compare function.  The goal is to use as few external libraries as possible, which means implementing our own string functions.
