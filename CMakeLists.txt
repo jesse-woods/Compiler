@@ -9,5 +9,5 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_executable(Compiler src/main.c
         include/lexer.h
         src/lexer.c
-        main.c)
+        src/main.c)
 
