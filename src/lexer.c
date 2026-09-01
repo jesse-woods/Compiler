@@ -1,4 +1,4 @@
-#include "../include/lexer.h"
+#include "lexer.h"
 #include <stdlib.h>
 
 
@@ -9,7 +9,7 @@ bool isDelimiter(const char c) {
 
 
 bool isOperator(const Str* op) {
-    printf("Slice : %s  Size: %lu\n", op->strSlice, op->length);
+
     if (op == nullptr || op->strSlice == nullptr || op->length == 0)
     {
         return false;
@@ -104,20 +104,15 @@ const Str* sliceString(const char* slicedString, const size_t start, const size_
     if (slicedString == nullptr || slicedString[0] == '\0')
     {
         printf("Attempt to slice empty string.\n");
-        const Str returnStr = { .strSlice = nullptr, .length = 0, };
-        return &returnStr;
-    }
-    //const size_t subLength = length - start + 1;
-    const auto subStr = (char*)malloc((length + 1) * sizeof(char));
-    for (size_t i = 0; i < length; i++)
-    {
-        subStr[i] = slicedString[start + i];
-    }
-    subStr[length] = '\0';
-    const auto returnStr = (Str*)malloc((sizeof(subStr) + sizeof(size_t)));
-    returnStr->strSlice = subStr;
-    returnStr->length = length;
 
+        return nullptr;
+    }
+    Str* returnStr = malloc(sizeof(Str));
+    if (returnStr == nullptr) {
+        return nullptr; // Always protect against failed mallocs
+    }
+    returnStr->strSlice = slicedString + start;
+    returnStr->length =  length;
     return returnStr;
 }
 static bool compare(const Str* str1, const Str* str2)
@@ -146,20 +141,10 @@ static bool isValidStr(const Str * str){
     return str != nullptr || str->strSlice != nullptr || str->strSlice[0] != '\0' || str->length != 0;
 
 }
-static void freeStr(const Str* str)
-{
-    if (isValidStr(str))
-    {
-        free(str->strSlice);
-        free((void *)str);
-    }
-    else
-    {
-        printf("Attempt to free null string.\n");
-    }
-}
-
-static void lexicalAnalyzer(const Str* input) {
+void lexicalAnalyzer(const char* in) {
+    size_t len = 0;
+    while (in[len] != '\0'){len++;}
+    const Str* input = sliceString(in, 0, len);
     if (isValidStr(input)){
         size_t left = 0, right = 0;
 
@@ -168,6 +153,7 @@ static void lexicalAnalyzer(const Str* input) {
                 right++;
             }
             if (isDelimiter(input->strSlice[right]) && left == right) {
+                printf("Delimiter: %c\n", input->strSlice[left]);
                 right++;
                 left = right;
 
@@ -176,13 +162,14 @@ static void lexicalAnalyzer(const Str* input) {
                 const Str* subStr = sliceString(input->strSlice, left, right - left);
 
                 if (isKeyword(subStr)) {
-                    printf("Token: Keyword, Value: %s\n", subStr->strSlice);
+                    printf("Token: Keyword, Value: %s Size: %lu\n", subStr->strSlice, subStr->length);
                 }
                 else if (isInteger(subStr)) {
                     printf("Token: Integer, Value: %s\n", subStr->strSlice);
                 }
                 else if (isValidIdentifier(subStr)) {
-                    printf("Token: Identifier, Value: %s\n", subStr->strSlice);
+                    printf("Token: Identifier, Value: ");
+                    printStr(subStr);
                 }
                 else if (isOperator(subStr)) {
                     printf("Token: Operator, Value: %s\n", subStr->strSlice);
@@ -191,8 +178,6 @@ static void lexicalAnalyzer(const Str* input) {
                 else {
                     printf("Token: Unidentified, Value: %s\n", subStr->strSlice);
                 }
-
-                freeStr(subStr);
                 left = right;
             }
         }
@@ -201,3 +186,120 @@ static void lexicalAnalyzer(const Str* input) {
         printf("Attempt to lexical analyzer empty string.\n");
     }
 }
+
+static void printStr(const Str* str)
+{
+    if (str != nullptr)
+    {
+        for (size_t i = 0; i < str->length; i++)
+            printf("%c", str->strSlice[i]);
+        printf("\n");
+    }
+}
+
+
+
+
+
+
+
+
+
+    /*
+     *size_t inputSize = 0;
+    while (input[inputSize] != '\0')
+    {
+        inputSize++;
+    }
+    if (index < inputSize)
+    {
+        const Str* inputStr = sliceString(input, index, inputSize);
+
+        if (isValidStr(inputStr)){
+            size_t left = 0, right = 0;
+
+
+            while (right <= inputStr->length && left <= right) {
+                if (!isDelimiter(inputStr->strSlice[right])){
+                    right++;
+                }
+                Token* returnToken = nullptr;
+                if (isDelimiter(inputStr->strSlice[right]) && left == right) {
+                    if (inputStr->strSlice[right] != ' ' && inputStr->strSlice[right] != '\n')
+                    {
+                        printf("Token: Delimiter, Value: %c\n", inputStr->strSlice[right]);
+
+                        switch (inputStr->strSlice[right])
+                        {
+                        case '{':
+                            returnToken->type = L_BRACE;
+                            break;
+                        case '}':
+                            returnToken->type = R_BRACE;
+                            break;
+                        case '[':
+                            returnToken->type = L_BRACK;
+                            break;
+                        case ']':
+                            returnToken->type = R_BRACK;
+                            break;
+                        case '(':
+                            returnToken->type = L_PAREN;
+                            break;
+                        case ')':
+                            returnToken->type = R_PAREN;
+                            break;
+                        default:
+                            returnToken->type = PUNCTUATION;
+                            break;
+                        }
+
+                        returnToken->token = *inputStr;
+                    }
+                    return returnToken;
+
+                }
+                else if (isDelimiter(inputStr->strSlice[right]) && left != right || (right == inputStr->length - 1 && left != right)) {
+                    const Str* subStr = sliceString(inputStr->strSlice, left, right - left);
+
+                    if (isKeyword(subStr)) {
+                        printf("Token: Keyword, Value: %s\n", subStr->strSlice);
+                        returnToken->token = *subStr;
+                        returnToken->type = KEYWORD;
+                        return returnToken;
+                    }
+                    else if (isInteger(subStr)) {
+                        printf("Token: Integer, Value: %s\n", subStr->strSlice);
+                        returnToken->token = *subStr;
+                        returnToken->type = INTEGER;
+                        return returnToken;
+                    }
+                    else if (isValidIdentifier(subStr)) {
+                        printf("Token: Identifier, Value: %s\n", subStr->strSlice);
+                        returnToken->token = *subStr;
+                        returnToken->type = IDENTIFIER;
+                        return returnToken;
+                    }
+                    else if (isOperator(subStr)) {
+                        printf("Token: Operator, Value: %s\n", subStr->strSlice);
+                        returnToken->token = *subStr;
+                        returnToken->type = OPERATOR;
+                        return returnToken;
+                    }
+                    else {
+                        printf("Token: Unidentified, Value: %s\n", subStr->strSlice);
+                        returnToken->token = *subStr;
+                        returnToken->type = UNDEFINED;
+                        return returnToken;
+                    }
+                }
+            }
+        }
+        else {
+            printf("Attempt to lexical analyzer empty string.\n");
+        }
+    }
+    return nullptr;
+    */
+
+

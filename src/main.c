@@ -2,8 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <getopt.h>
+#include "lexer.h"
 
 static bool isCFile(const char *);
+static void processFile(const char*);
+
 
 int main(const int argc, char *argv[]) {
   int opt = 0;
@@ -19,6 +22,7 @@ int main(const int argc, char *argv[]) {
       fileFromArgs = optarg;
       if (isCFile(optarg)) {
         printf("%s\n", optarg);
+        processFile(optarg);
       }
       break;
     case 'p':
@@ -42,9 +46,26 @@ int main(const int argc, char *argv[]) {
 }
 
 static bool isCFile(const char *fileName) {
-  if (fileName == NULL || strlen(fileName) < 3) {
+  if (fileName == nullptr || strlen(fileName) < 3) {
     return false;
   }
   printf("filetype: %s\n", fileName + strlen(fileName) - 2);
   return strcmp(fileName + strlen(fileName) - 2, ".c") == 0;
 }
+static void processFile(const char* file) {
+  FILE *file_ptr = fopen(file, "r");
+  if (file_ptr == nullptr) { // Note: standard C uses NULL, C23 adds nullptr
+    printf("File does not exist\n");
+    return;
+  }
+
+  char line[1024];
+  // Safe way to loop lines: fgets returns NULL when the file ends
+  while (fgets(line, sizeof(line), file_ptr) != nullptr)
+  {
+    lexicalAnalyzer(line);
+  }
+
+  fclose(file_ptr);
+}
+

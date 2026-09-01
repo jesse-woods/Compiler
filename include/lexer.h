@@ -17,21 +17,31 @@ remove matching substring from start of input
 -------------------------------------------------------------*/
 typedef struct
 {
-    char* strSlice;
+    const char* strSlice;
     size_t length;
 } Str;
 
 enum TOKEN_TYPE
 {
     IDENTIFIER,
-    CONSTANT,
+    INTEGER,
     KEYWORD,
-    OPERATOR
+    OPERATOR,
+    PUNCTUATION, // For ;, ,, etc.
+    L_PAREN,     // Or give crucial ones their own explicit type
+    R_PAREN,
+    L_BRACE,
+    R_BRACE,
+    L_BRACK,
+    R_BRACK,
+    UNDEFINED,
 };
 typedef struct
 {
     enum TOKEN_TYPE type;
     Str token;
+    size_t line;
+    size_t column;
 }Token;
 static const Str* sliceString(const char*, size_t, size_t);
 static bool isDelimiter(char);
@@ -41,7 +51,7 @@ static bool isValidIdentifier(const Str*);
 static bool isInteger(const Str*);
 static bool compare(const Str*, const Str*);
 static bool isValidStr(const Str*);
-static void freeStr(const Str*);
-static void lexicalAnalyzer(const Str*);
+void lexicalAnalyzer(const char*);
+static void printStr(const Str*);
 
 #endif //COMPILER_LEXER_H

@@ -6,8 +6,11 @@ set(CMAKE_C_STANDARD_REQUIRED On)
 set(CMAKE_C_EXTENSIONS ON)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-add_executable(Compiler src/main.c
-        include/lexer.h
+add_executable(Compiler
+        src/main.c
         src/lexer.c
-        src/main.c)
+        include/lexer.h
+)
+
+target_include_directories(Compiler PRIVATE include)
 
