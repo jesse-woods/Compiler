@@ -10,7 +10,6 @@ static void processFile(const char*);
 
 int main(const int argc, char *argv[]) {
   int opt = 0;
-
   while ((opt = getopt(argc, argv, "al:p:")) != -1) {
     const char *fileFromArgs;
     switch (opt) {
@@ -63,6 +62,8 @@ static void processFile(const char* file) {
   // Safe way to loop lines: fgets returns NULL when the file ends
   while (fgets(line, sizeof(line), file_ptr) != nullptr)
   {
+
+    printf("%s", line);
     lexicalAnalyzer(line);
   }
 

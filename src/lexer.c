@@ -3,19 +3,16 @@
 
 
 bool isDelimiter(const char c) {
-    return c ==' '||c == '('|| c == ')'||c == '['|| c == ']' || c == '{'||
-        c == '}' || c =='{'||c == '['||c == ']'||c == ';'||c == ',';
+    return c == ' '  || c == '\t' || c == '\r' ||
+           c == '('  || c == ')'  ||
+           c == '['  || c == ']'  ||
+           c == '{'  || c == '}'  ||
+           c == ';'  || c == ',';
 }
+bool isOperator(const char op) {
 
-
-bool isOperator(const Str* op) {
-
-    if (op == nullptr || op->strSlice == nullptr || op->length == 0)
-    {
-        return false;
-    }
-    return (op->strSlice[0] == '+' || op ->strSlice[0] == '-' || op ->strSlice[0] == '*' || op ->strSlice[0] == '/'
-    || op ->strSlice[0] == '%' || op ->strSlice[0] == '>' || op ->strSlice[0] == '<' || op ->strSlice[0] == '=');
+    return (op == '+' || op == '-' || op == '*' || op == '/'
+    || op == '%' || op == '>' || op == '<' || op == '=');
 
 }
 /*-------------------------------------------------------------------------------
@@ -24,27 +21,36 @@ bool isOperator(const Str* op) {
  *Current implementation is to search through keywords with a loop, in the future
  *perhaps its better to use a dictionary for purposes of speed.
  *------------------------------------------------------------------------------*/
-static bool isKeyword(const Str* str)
-{
-    if (isValidStr(str)) {
-        constexpr size_t KEYWORD_COUNT = 32;
-        for (int i = 0; i < KEYWORD_COUNT; i++)
-        {
-            const char* keywords[]
-                = { "auto",     "break",    "case",     "char",
-                    "const",    "continue", "default",  "do",
-                    "double",   "else",     "enum",     "extern",
-                    "float",    "for",      "goto",     "if",
-                    "int",      "long",     "register", "return",
-                    "short",    "signed",   "sizeof",   "static",
-                    "struct",   "switch",   "typedef",  "union",
-                    "unsigned", "void",     "volatile", "while" };
-            size_t len = 0;
-            while (keywords[i][len] != '\0')
-                len++;
-            if (compare(str, sliceString(keywords[i], 0, len))) {
-                return true;
-            }
+// Helper to compare a Str (non-null-terminated) with a standard C-string
+static bool strEqualsCStr(const Str* str, const char* cstr) {
+    size_t i = 0;
+    while (i < str->length && cstr[i] != '\0') {
+        if (str->strSlice[i] != cstr[i]) {
+            return false;
+        }
+        i++;
+    }
+    // Both must reach the end simultaneously
+    return (i == str->length && cstr[i] == '\0');
+}
+
+static bool isKeyword(const Str* str) {
+    if (!isValidStr(str)) return false;
+
+    static const char* keywords[32] = {
+        "auto", "break", "case", "char",
+        "const", "continue", "default", "do",
+        "double", "else", "enum", "extern",
+        "float", "for", "goto", "if",
+        "int", "long", "register", "return",
+        "short", "signed", "sizeof", "static",
+        "struct", "switch", "typedef", "union",
+        "unsigned", "void", "volatile", "while"
+    };
+
+    for (int i = 0; i < 32; i++) {
+        if (strEqualsCStr(str, keywords[i])) {
+            return true;
         }
     }
     return false;
@@ -57,30 +63,34 @@ static bool isKeyword(const Str* str)
 * ------------------------------------------------------------------------------------------------------------------*/
 
 static bool isValidIdentifier(const Str* str) {
-
-    if (isValidStr(str))
-    {
-        bool returnStatement = false;
-        const char compared = str->strSlice[0];
-        for (char i = 0; i < 26; i++){
-            if (compared == (i + 'A') || compared == (i + 'a'))
-            {
-
-                returnStatement = true;
-            }
-        }
-        if (compared == '_')
-        {
-            returnStatement = true;
-        }
-        if (isKeyword(str))
-        {
-            returnStatement = false;
-        }
-        return returnStatement;
+    if (!isValidStr(str) || str->length == 0) {
+        printf("Attempt to check if invalid string is identifier.\n");
+        return false;
     }
-    printf("Attempt to check if invalid string is identifier.\n");
-    return false;
+
+    // Identifiers cannot start with a digit
+    if (str->strSlice[0] >= '0' && str->strSlice[0] <= '9') {
+        return false;
+    }
+
+    // Check all characters
+    for (size_t i = 0; i < str->length; i++) {
+        const char c = str->strSlice[i];
+        const bool isAlpha = (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+        const bool isDigit = (c >= '0' && c <= '9');
+        const bool isUnderscore = (c == '_');
+
+        if (!isAlpha && !isDigit && !isUnderscore) {
+            return false; // Found an invalid symbol (e.g., @, !, space)
+        }
+    }
+
+    // Keywords are not identifiers
+    if (isKeyword(str)) {
+        return false;
+    }
+
+    return true;
 }
 // check for an integer value
 static bool isInteger(const Str* str) {
@@ -141,86 +151,99 @@ static bool isValidStr(const Str * str){
     return str != nullptr || str->strSlice != nullptr || str->strSlice[0] != '\0' || str->length != 0;
 
 }
-void lexicalAnalyzer(const char* in) {
+void lexicalAnalyzer(const char* in)
+{
     size_t len = 0;
-    while (in[len] != '\0'){len++;}
+    while (in[len] != 10)
+    {
+        len++;
+    }
     const Str* input = sliceString(in, 0, len);
-    if (isValidStr(input)){
+    if (isValidStr(input))
+    {
         size_t left = 0, right = 0;
-
-        while (right < input->length && left <= right) {
-            if (!isDelimiter(input->strSlice[right])){
+        while (right < input->length)
+        {
+            bool foundUnary = false;
+            while (!isDelimiter(input->strSlice[right]) && !isOperator(input->strSlice[right]))
+            {
                 right++;
             }
-            if (isDelimiter(input->strSlice[right]) && left == right) {
-
-                switch (input->strSlice[right])
+            if (isDelimiter(input->strSlice[right]))
+            {
+                printf("We're registering this as a delimiter: %c ASCII: %d Pos: %lu \n", input->strSlice[right], input->strSlice[right], right);
+            }
+            else if (isOperator(input->strSlice[right]))
+            {
+                printf("We're registering this as an operator: %c Pos: %lu \n", input->strSlice[right], right);
+                if (right < input->length - 1)
                 {
-                case '{':
-                    printf("Delimiter: %c\n", input->strSlice[left]);
-                    //returnToken->type = L_BRACE;
-                    break;
-                case '}':
-                    printf("Delimiter: %c\n", input->strSlice[left]);
-                    //returnToken->type = R_BRACE;
-                    break;
-                case '[':
-                    printf("Delimiter: %c\n", input->strSlice[left]);
-                    //returnToken->type = L_BRACK;
-                    break;
-                case ']':
-                    printf("Delimiter: %c\n", input->strSlice[left]);
-                    //returnToken->type = R_BRACK;
-                    break;
-                case '(':
-                    printf("Delimiter: %c\n", input->strSlice[left]);
-                    //returnToken->type = L_PAREN;
-                    break;
-                case ')':
-                    printf("Delimiter: %c\n", input->strSlice[left]);
-                    //returnToken->type = R_PAREN;
-                    break;
-                case '\n':
-                    printf("Carriage Return: %c\n", input->strSlice[left]);
-                    break;
-                default:
-                    printf("Unknown Delimiter: %d\n", input->strSlice[left]);
-                    break;
+                    if (input->strSlice[right + 1] == '=')
+                    {
+                        const Str* getEm = sliceString(input->strSlice, right, 2);
+                        printf("Found a unary: ");
+                        printStr(getEm);
+                        foundUnary = true;
+                    }
+                    if (input->strSlice[right] == '+' && input->strSlice[right + 1] == '+')
+                    {
+                        printf("increment right here\n");
+                        foundUnary = true;
+                    }
+                    if (input->strSlice[right] == '-' && input->strSlice[right + 1] == '-')
+                    {
+                        printf("increment right here\n");
+                        foundUnary = true;
+                    }
+
                 }
+            }
+            if (left != right){
+                const Str* test = sliceString(input->strSlice, left, right - left);
+                printf("This is the window: ");
+                printStr(test);
+                if (isValidIdentifier(test))
+                {
+                    printf("This is the identifier: ");
+                    printStr(test);
+                    printf("\n");
+                }
+                else if (isKeyword(test))
+                {
+                    printf("This is the keyword: ");
+                    printStr(test);
+                    printf("\n");
+                }
+                else if (isInteger(test))
+                {
+                    printf("This is the integer: ");
+                    printStr(test);
+                    printf("\n");
+                }
+                else
+                {
+                    printf("Uncategorized: ");
+                    printStr(test);
+                    printf("\n");
+                }
+            }
+            if (foundUnary)
+            {
+                right+=2;
+                left = right;
+            }
+            else
+            {
                 right++;
                 left = right;
-
             }
-            else if (isDelimiter(input->strSlice[right]) && left != right || (right == input->length - 1 && left != right)) {
-                const Str* subStr = sliceString(input->strSlice, left, right - left);
 
-                if (isKeyword(subStr)) {
-                    printf("Token: Keyword, Value: ");
-                    printStr(subStr);
-                }
-                else if (isInteger(subStr)) {
-                    printf("Token: Integer, Value: ");
-                    printStr(subStr);
-                }
-                else if (isValidIdentifier(subStr)) {
-                    printf("Token: Identifier, Value: ");
-                    printStr(subStr);
-                }
-                else if (isOperator(subStr)) {
-                    printf("Token: Operator, Value: ");
-                    printStr(subStr);
-                }
-
-                else {
-                    printf("Token: Unidentified, Value: ");
-                    printStr(subStr);
-                }
-                left = right;
-            }
         }
+
+
     }
     else {
-        printf("Attempt to lexical analyzer empty string.\n");
+        printf("Attempt to lexical analyze empty string.\n");
     }
 }
 
@@ -233,6 +256,7 @@ static void printStr(const Str* str)
         printf("\n");
     }
 }
+
 
 
 

@@ -6,3 +6,5 @@
 08/20/26 - Fixed a lot of the logic in all functions, particularly making use of Str struct for string storage. Created a freeStr function as well as a compare function.  The goal is to use as few external libraries as possible, which means implementing our own string functions.
 
 08/21/26 - Added more robust string pointer validation throughout all of the lexer functions. Eliminated all uses of string.h. All ogic should be complete and operational at this point except for isValidIdentifier.  Still a work in progress.
+
+09/01/26 - lexicalAnalyzer() function window logic is working! Although it's currently just printing the tokens to the screen.  I also improved the isKeyword logic by making the keyword array static const so it doesn't recreate the array every time the function is called.  Also, currently I'm using malloc to create my Str structs which hold pointers to the initial file data.  I will soon change this so that the compiler will use an arena for it's abstract syntax tree.  just wanted to make sure I understood how the memory was being managed first.

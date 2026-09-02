@@ -45,7 +45,8 @@ typedef struct
 }Token;
 static const Str* sliceString(const char*, size_t, size_t);
 static bool isDelimiter(char);
-static bool isOperator(const Str*);
+static bool isOperator(char);
+static bool strEqualsCStr(const Str*, const char*);
 static bool isKeyword(const Str*);
 static bool isValidIdentifier(const Str*);
 static bool isInteger(const Str*);
