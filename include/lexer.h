@@ -46,11 +46,10 @@ typedef struct
 static const Str* sliceString(const char*, size_t, size_t);
 static bool isDelimiter(char);
 static bool isOperator(char);
-static bool strEqualsCStr(const Str*, const char*);
+static bool compareStrToCString(const Str*, const char*);
 static bool isKeyword(const Str*);
 static bool isValidIdentifier(const Str*);
 static bool isInteger(const Str*);
-static bool compare(const Str*, const Str*);
 static bool isValidStr(const Str*);
 void lexicalAnalyzer(const char*);
 static void printStr(const Str*);

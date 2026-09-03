@@ -22,7 +22,7 @@ bool isOperator(const char op) {
  *perhaps its better to use a dictionary for purposes of speed.
  *------------------------------------------------------------------------------*/
 // Helper to compare a Str (non-null-terminated) with a standard C-string
-static bool strEqualsCStr(const Str* str, const char* cstr) {
+static bool compareStrToCString(const Str* str, const char* cstr) {
     size_t i = 0;
     while (i < str->length && cstr[i] != '\0') {
         if (str->strSlice[i] != cstr[i]) {
@@ -49,7 +49,7 @@ static bool isKeyword(const Str* str) {
     };
 
     for (int i = 0; i < 32; i++) {
-        if (strEqualsCStr(str, keywords[i])) {
+        if (compareStrToCString(str, keywords[i])) {
             return true;
         }
     }
@@ -125,27 +125,6 @@ const Str* sliceString(const char* slicedString, const size_t start, const size_
     returnStr->length =  length;
     return returnStr;
 }
-static bool compare(const Str* str1, const Str* str2)
-{
-    if (isValidStr(str1) && isValidStr(str2))
-    {
-        if (str1->length != str2->length)
-        {
-            return false;
-        }
-        for (size_t i = 0; i < str1->length; i++)
-        {
-
-            if (str1->strSlice[i] != str2->strSlice[i])
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-    printf("Attempt to compare one or more invalid strings.\n");
-    return false;
-}
 static bool isValidStr(const Str * str){
 
     return str != nullptr || str->strSlice != nullptr || str->strSlice[0] != '\0' || str->length != 0;
@@ -169,36 +148,7 @@ void lexicalAnalyzer(const char* in)
             {
                 right++;
             }
-            if (isDelimiter(input->strSlice[right]))
-            {
-                printf("We're registering this as a delimiter: %c ASCII: %d Pos: %lu \n", input->strSlice[right], input->strSlice[right], right);
-            }
-            else if (isOperator(input->strSlice[right]))
-            {
-                printf("We're registering this as an operator: %c Pos: %lu \n", input->strSlice[right], right);
-                if (right < input->length - 1)
-                {
-                    if (input->strSlice[right + 1] == '=')
-                    {
-                        const Str* getEm = sliceString(input->strSlice, right, 2);
-                        printf("Found a unary: ");
-                        printStr(getEm);
-                        foundUnary = true;
-                    }
-                    if (input->strSlice[right] == '+' && input->strSlice[right + 1] == '+')
-                    {
-                        printf("increment right here\n");
-                        foundUnary = true;
-                    }
-                    if (input->strSlice[right] == '-' && input->strSlice[right + 1] == '-')
-                    {
-                        printf("increment right here\n");
-                        foundUnary = true;
-                    }
-
-                }
-            }
-            if (left != right){
+            if ((isDelimiter(input->strSlice[right]) || isOperator(input->strSlice[right])) && left != right){
                 const Str* test = sliceString(input->strSlice, left, right - left);
                 printf("This is the window: ");
                 printStr(test);
@@ -227,6 +177,38 @@ void lexicalAnalyzer(const char* in)
                     printf("\n");
                 }
             }
+            if (isDelimiter(input->strSlice[right]))
+            {
+                if (input->strSlice[right] != ' ')
+                {
+                    printf("We're registering this as a delimiter: %c ASCII: %d Pos: %lu \n", input->strSlice[right], input->strSlice[right], right);
+                }
+            }
+            else if (isOperator(input->strSlice[right]))
+            {
+                printf("We're registering this as an operator: %c Pos: %lu \n", input->strSlice[right], right);
+                if (right < input->length - 1)
+                {
+                    if (input->strSlice[right + 1] == '=')
+                    {
+                        const Str* getEm = sliceString(input->strSlice, right, 2);
+                        printf("Found a unary: ");
+                        printStr(getEm);
+                        foundUnary = true;
+                    }
+                    if (input->strSlice[right] == '+' && input->strSlice[right + 1] == '+')
+                    {
+                        printf("increment right here\n");
+                        foundUnary = true;
+                    }
+                    if (input->strSlice[right] == '-' && input->strSlice[right + 1] == '-')
+                    {
+                        printf("increment right here\n");
+                        foundUnary = true;
+                    }
+
+                }
+            }
             if (foundUnary)
             {
                 right+=2;
@@ -237,10 +219,7 @@ void lexicalAnalyzer(const char* in)
                 right++;
                 left = right;
             }
-
         }
-
-
     }
     else {
         printf("Attempt to lexical analyze empty string.\n");
