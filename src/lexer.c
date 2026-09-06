@@ -115,7 +115,7 @@ static bool isValidStr(const Str * str){
     return str != nullptr || str->strSlice != nullptr || str->strSlice[0] != '\0' || str->length != 0;
 
 }
-TokenStream* lexicalAnalyzer(const char* in, size_t lineNumber)
+TokenStream* lexicalAnalyzer(const char* in, const size_t lineNumber)
 {
     size_t len = 0;
     TokenStream* stream = create_stream();
