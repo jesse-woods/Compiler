@@ -3,6 +3,7 @@
 #include <string.h>
 #include <getopt.h>
 #include "lexer.h"
+#include "token_stream.h"
 
 static bool isCFile(const char *);
 static void processFile(const char*);
@@ -41,6 +42,8 @@ int main(const int argc, char *argv[]) {
       return EXIT_FAILURE;
     }
   }
+
+
   return EXIT_SUCCESS;
 }
 
@@ -58,13 +61,19 @@ static void processFile(const char* file) {
     return;
   }
 
+  //buffer
   char line[1024];
-  // Safe way to loop lines: fgets returns NULL when the file ends
+
+  //keep track of line number for error reporting purposes
+  size_t lineNumber = 0;
+
+  // Safe way to loop lines: fgets returns nullptr when the file ends
   while (fgets(line, sizeof(line), file_ptr) != nullptr)
   {
-
+    lineNumber++;
     printf("%s", line);
-    lexicalAnalyzer(line);
+    const TokenStream* stream = lexicalAnalyzer(line, lineNumber);
+    printf("Line: %zu Number of Tokens: %zu\n", lineNumber, stream->size);
   }
 
   fclose(file_ptr);
