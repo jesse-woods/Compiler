@@ -15,6 +15,7 @@ add_executable(Compiler
         include/token.h
         src/string_slice.c
         include/string_slice.h
+        src/token.c
 )
 
 target_include_directories(Compiler PRIVATE include)

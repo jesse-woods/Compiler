@@ -5,6 +5,8 @@
 #ifndef COMPILER_LEXER_H
 #define COMPILER_LEXER_H
 
+#include <stdio.h>
+
 #include "string_slice.h"
 #include "token_stream.h"
 /*-------------------------------------------------------------
@@ -27,7 +29,7 @@ static bool isKeyword(const Str*);
 static bool isValidIdentifier(const Str*);
 static bool isInteger(const Str*);
 static bool isValidStr(const Str*);
-TokenStream* lexicalAnalyzer(const char*, size_t);
-static void printStr(const Str*);
+char* stringify(const char*, size_t);
+TokenStream* lexical_analyzer(const char*, size_t);
 
 #endif //COMPILER_LEXER_H

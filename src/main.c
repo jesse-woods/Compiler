@@ -55,27 +55,13 @@ static bool isCFile(const char *fileName) {
   return strcmp(fileName + strlen(fileName) - 2, ".c") == 0;
 }
 static void processFile(const char* file) {
-  FILE *file_ptr = fopen(file, "r");
-  if (file_ptr == nullptr) { // Note: standard C uses NULL, C23 adds nullptr
-    printf("File does not exist\n");
-    return;
-  }
+    size_t len = 0;
+    char* file_contents = stringify(file, len);
 
-  //buffer
-  char line[1024];
+    TokenStream* stream = lexical_analyzer(file_contents, len);
+    //print_stream(stream);
+    free(file_contents);
+    free_stream(stream);
 
-  //keep track of line number for error reporting purposes
-  size_t lineNumber = 0;
-
-  // Safe way to loop lines: fgets returns nullptr when the file ends
-  while (fgets(line, sizeof(line), file_ptr) != nullptr)
-  {
-    lineNumber++;
-    printf("%s", line);
-    const TokenStream* stream = lexicalAnalyzer(line, lineNumber);
-    printf("Line: %zu Number of Tokens: %zu\n", lineNumber, stream->size);
-  }
-
-  fclose(file_ptr);
 }
 

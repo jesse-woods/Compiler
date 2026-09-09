@@ -93,16 +93,19 @@ void print_stream(const TokenStream* stream)
             printf("Error: token is null\n");
             return;
         }
-        else
-        {
-            printf("Token: %s\n", stream->tokens[i].token->strSlice);
-        }
+        printf("Token: ");
+        print_str(stream->tokens[i].token);
+        printf("Line number: %lu Column number: %lu\n", stream->tokens[i].line, stream->tokens[i].column);
     }
 }
-void free_stream(TokenStream* stream) {
+void free_stream(const TokenStream* stream) {
     if (stream != NULL) {
-        free(stream->tokens);
-        free(stream);
+        for (size_t i = 0; i < stream->size; i++) {
+            if (stream->tokens + i != nullptr) {
+                free_token(&stream->tokens[i]);
+            }
+        }
+        free((void*)stream);
     }
 }
 

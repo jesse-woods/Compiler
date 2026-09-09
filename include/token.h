@@ -45,5 +45,5 @@ typedef struct
     size_t column;
 
 }Token;
-
+void free_token(Token*);
 #endif //COMPILER_TOKEN_H
