@@ -10,12 +10,12 @@
 
 typedef struct
 {
-    const char* strSlice;
+    const char* slice;
     size_t length;
-} Str;
+} string_slice;
 
-const Str* slice_string(const char*, size_t, size_t);
-void print_str(const Str*);
-void free_slice(const Str*);
+const string_slice* slice_string(const char*, size_t, size_t);
+void print_str(const string_slice*);
+void free_slice(const string_slice*);
 
 #endif //COMPILER_STRING_SLICE_H

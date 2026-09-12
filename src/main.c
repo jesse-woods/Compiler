@@ -9,6 +9,7 @@ static bool isCFile(const char *);
 static void processFile(const char*);
 
 
+
 int main(const int argc, char *argv[]) {
   int opt = 0;
   while ((opt = getopt(argc, argv, "al:p:")) != -1) {
@@ -55,13 +56,12 @@ static bool isCFile(const char *fileName) {
   return strcmp(fileName + strlen(fileName) - 2, ".c") == 0;
 }
 static void processFile(const char* file) {
-    size_t len = 0;
-    char* file_contents = stringify(file, len);
+  char* file_contents = stringify(file);
+  printf("Contents: %s\n", file_contents);
+  const TokenStream* stream = lexical_analyzer(file_contents);
 
-    TokenStream* stream = lexical_analyzer(file_contents, len);
-    //print_stream(stream);
-    free(file_contents);
-    free_stream(stream);
+  free_stream(stream);
+  free(file_contents);
 
 }
 

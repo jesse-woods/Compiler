@@ -1,16 +1,26 @@
-08/07/26 - Began work on Lexer. Created structs for Str, which essentially operates as a string wrapper with pointer to character array and a size_t for length, and Token which contains a Str type and a TOKEN_TYPE enum. As well as created functions to check if a character is a delimiter and a sliceString function to create Str structs out of char arrays.
+Baby C Compiler
 
-08/16/26 - Added functions that return bools based on whether a token was a valid identifier, keyword, or operator.
-            Current thoughts: currently, there are 32 keywords listed, which is the same amount as the c89 standard. As this is an excersize, as opposed to an actual complier for use, we shall stop there. However, I'm aware that the current c23 standard now has 67. The keyword list is currently an array of character arrays that is iterated over one by one. I would like to look into different implementations in the future.
+Current Status:
 
-08/20/26 - Fixed a lot of the logic in all functions, particularly making use of Str struct for string storage. Created a freeStr function as well as a compare function.  The goal is to use as few external libraries as possible, which means implementing our own string functions.
+✅ Lexer
 
-08/21/26 - Added more robust string pointer validation throughout all of the lexer functions. Eliminated all uses of string.h. All ogic should be complete and operational at this point except for isValidIdentifier.  Still a work in progress.
+🚧 Parser
 
-09/01/26 - lexicalAnalyzer() function window logic is working! Although it's currently just printing the tokens to the screen.  I also improved the isKeyword logic by making the keyword array static const so it doesn't recreate the array every time the function is called.  Also, currently I'm using malloc to create my Str structs which hold pointers to the initial file data.  I will soon change this so that the compiler will use an arena for it's abstract syntax tree.  just wanted to make sure I understood how the memory was being managed first.
+Features:
 
-09/02/26 - My lexicalAnalyzer was processing a delimiter before the previous token, so I fixed that logic. The lexical analyzer operates properly so far.  Writing a parser is a bigger subject than I thought. Currently decided that a recursive descent parser for everything except the arithmetic.  For that I will implement a pratt parser.  My next task however is building an array to hold my Tokens while the tree is built.
+- Dynamic token stream
 
-09/06/26 - Finished creating a vector type data structure "TokenStream" for holding tokens after lexical analysis. The lexicalAnalyzer function now returns a populated TokenStream, and assembles the individual tokens complete with types from an ENUM.  I keep thinking I'm ready to start on my parser but more things come to my attention.  Next steps befor the parser would be to add functionality that reads the whole file in before assembling our token stream, as currently our program goes line by line. We also should take this opportunity to learn how to and also implement an arena. I've also realized that my lexical analyzer does not recognize "and" && or "or" ||. I think I will hold off on this functionality, as there are going to be a lot of things I will need to add on later, after the core functionality exists.  As it is, my lexical analyzer function works, however it is rather large.  I would like to go over it and see if I can clean it up.
+- Source location tracking
 
-09/08/26 - Ran my program through valgrind, which lead me down a path of reorganizing a lot of my project.  After today all heap blocks are freed with 0 errors.  This entire process taught me a lot about what kind of mindset you need when writing C. For instance, in Java, you pass data and return it from methods relatively freely, as the underlying mechanisms of memory allocation are handled for you. In C, you really need to think of everything as Data first. The data is stationary. You write code that uses it and works on it. I also imple4mented reading the entire file into memory before creating your tockens.  The last two things that need to be implemented befor I start on the parser is keeping track of the row and position of tokens for error reporting purposes, and finally switching my memory management over to an arena.
+- Valgrind-clean memory management
+
+- Full file tokenization
+
+Roadmap:
+- Parser
+
+- AST
+
+- Semantic Analysis
+
+- Code Generation

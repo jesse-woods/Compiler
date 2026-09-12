@@ -2,7 +2,7 @@
 // Created by Jesse Woods on 9/5/26.
 //
 #include "token_stream.h"
-
+#include "token.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -21,7 +21,7 @@ TokenStream* create_stream()
     return stream;
 
 }
-void push_token(TokenStream* stream, const Token* token)
+void push_token(TokenStream* stream, Token* token)
 {
     if (stream == nullptr || token == nullptr)
     {
@@ -29,23 +29,24 @@ void push_token(TokenStream* stream, const Token* token)
         return;
     }
 
-    // 1. Manage capacity up front
     if (stream->size >= stream->capacity)
     {
-        // If capacity is 0, give it a starting size (e.g., 32 tokens). Otherwise, double it.
         const size_t new_capacity = stream->capacity == 0 ? 32 : stream->capacity * 2;
 
-        const auto new_tokens = (Token*)realloc(stream->tokens, new_capacity * sizeof(Token));
+        //Allocate space for pointers (Token*), not structures (Token)
+        const auto new_tokens = (Token**)realloc(stream->tokens, new_capacity * sizeof(Token*));
         if (new_tokens == nullptr)
         {
             printf("Error: realloc failed\n");
-            return; // Original buffer is still intact, prevents memory leak
+            return;
         }
 
         stream->tokens = new_tokens;
         stream->capacity = new_capacity;
     }
-    stream->tokens[stream->size] = *token;
+
+    //Stores the actual pointer from the lexer, as opposed to a shallow copy
+    stream->tokens[stream->size] = token;
     stream->size++;
 }
 void pop_token(TokenStream* stream)
@@ -69,7 +70,7 @@ Token* token_at(const TokenStream* stream, const size_t index)
         printf("Error: index out of bounds or stream is null\n");
         return nullptr;
     }
-    return &stream->tokens[index]; // Clearer array syntax
+    return stream->tokens[index];
 }
 size_t token_count(const TokenStream* stream)
 {
@@ -81,32 +82,28 @@ bool is_empty(const TokenStream* stream)
 }
 void print_stream(const TokenStream* stream)
 {
-    if (stream == nullptr)
-    {
-        printf("Error: stream is null\n");
-        return;
-    }
+    if (stream == nullptr) return;
+
     for (size_t i = 0; i < stream->size; i++)
     {
-        if (stream->tokens + i == nullptr)
-        {
-            printf("Error: token is null\n");
-            return;
-        }
+        if (stream->tokens[i] == nullptr) continue;
+
         printf("Token: ");
-        print_str(stream->tokens[i].token);
-        printf("Line number: %lu Column number: %lu\n", stream->tokens[i].line, stream->tokens[i].column);
+        print_str(stream->tokens[i]->slice);
+        printf("Line number: %lu Column number: %lu\n", stream->tokens[i]->line, stream->tokens[i]->column);
+        printf("Type: %d\n", stream->tokens[i]->type);
     }
 }
 void free_stream(const TokenStream* stream) {
-    if (stream != NULL) {
-        for (size_t i = 0; i < stream->size; i++) {
-            if (stream->tokens + i != nullptr) {
-                free_token(&stream->tokens[i]);
-            }
+    if (stream == nullptr) return;
+
+    for (size_t i = 0; i < stream->size; i++) {
+        if (stream->tokens[i] != nullptr) {
+            free_token(stream->tokens[i]); // Passes the original pointer
         }
-        free((void*)stream);
     }
+    free(stream->tokens);
+    free((void*)stream);
 }
 
 

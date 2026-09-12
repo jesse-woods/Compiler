@@ -2,28 +2,30 @@
 #include <stdlib.h>
 #include "string_slice.h"
 //
-// Created by jwoods on 9/5/26.
+// Created by Jesse Woods on 9/5/26.
 //
 // trims a substring from a given string's start and end
 // position
 
 
-const Str* slice_string(const char* slicedString, const size_t start, const size_t length){
-    if (slicedString == nullptr || slicedString[0] == '\0')
+const string_slice* slice_string(const char* sliced_string, const size_t start, const size_t length){
+    if (sliced_string == nullptr || sliced_string[0] == '\0')
     {
         printf("Attempt to slice empty string.\n");
-
         return nullptr;
     }
-    Str* returnStr = malloc(sizeof(Str));
-    if (returnStr == nullptr) {
-        return nullptr; // Always protect against failed mallocs
+    const auto return_slice = (string_slice*)malloc(sizeof(string_slice));
+
+    //Protect against failed malloc
+    if (return_slice == nullptr) {
+        return nullptr;
     }
-    returnStr->strSlice = slicedString + start;
-    returnStr->length =  length;
-    return returnStr;
+
+    return_slice->slice = sliced_string + start;
+    return_slice->length =  length;
+    return return_slice;
 }
-void print_str(const Str* str)
+void print_str(const string_slice* str)
 {
     if (str == nullptr) {
         printf("Attempt to print empty string.\n");
@@ -31,13 +33,13 @@ void print_str(const Str* str)
     }
 
     for (size_t i = 0; i < str->length; i++)
-        printf("%c", str->strSlice[i]);
+        printf("%c", str->slice[i]);
     printf("\n");
 
 }
-void free_slice(const Str* str) {
-    if (str != nullptr) {
-        free((void*)str->strSlice);
-        free((void*)str);
-    }
+void free_slice(const string_slice* str) {
+    if (str == nullptr) return;
+
+    free((void*)str);
+
 }

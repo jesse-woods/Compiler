@@ -1,21 +1,22 @@
 //
-// Created by jwoods on 9/5/26.
+// Created by Jesse Woods on 9/5/26.
 //
 
 #ifndef COMPILER_TOKEN_STREAM_H
 #define COMPILER_TOKEN_STREAM_H
 #include "token.h"
 
+
 typedef struct {
 
-    Token* tokens;
+    Token** tokens;
     size_t size;
     size_t capacity;
 
 }TokenStream;
 
 TokenStream* create_stream();
-void push_token(TokenStream*,const Token*);
+void push_token(TokenStream*, Token*);
 void pop_token(TokenStream*);
 Token* token_at(const TokenStream*, size_t);
 size_t token_count(const TokenStream*);

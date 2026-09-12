@@ -5,15 +5,15 @@
 #define COMPILER_TOKEN_H
 #include <stddef.h>
 #include "string_slice.h"
+
 enum TOKEN_TYPE
 {
     IDENTIFIER,
     INTEGER,
     KEYWORD,
-    PUNCTUATION,// For ;, ,, etc.
     SEMICOLON,
     COMMA,
-    L_PARENTHESES,     // Or give crucial ones their own explicit type
+    L_PARENTHESES,
     R_PARENTHESES,
     L_BRACE,
     R_BRACE,
@@ -23,11 +23,12 @@ enum TOKEN_TYPE
     GREATER_THAN,
     LESS_THAN_OR_EQUAL,
     GREATER_THAN_OR_EQUAL,
-    ADD,
-    SUBTRACT,
-    MULTIPLY,
-    DIVIDE,
+    PLUS,
+    MINUS,
+    ASTERISK,
+    FORWARD_SLASH,
     MODULO,
+    EQUAL,
     PLUS_EQUAL,
     MINUS_EQUAL,
     TIMES_EQUAL,
@@ -40,10 +41,15 @@ enum TOKEN_TYPE
 typedef struct
 {
     enum TOKEN_TYPE type;
-    const Str* token;
+    const string_slice* slice;
     size_t line;
     size_t column;
 
 }Token;
+
+Token* create_token(const char*,size_t, size_t, size_t);
+static bool isValidStr(const string_slice*);
+void print_token(const Token*);
 void free_token(Token*);
+
 #endif //COMPILER_TOKEN_H
