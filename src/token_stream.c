@@ -89,9 +89,21 @@ void print_stream(const TokenStream* stream)
         if (stream->tokens[i] == nullptr) continue;
 
         printf("Token: ");
-        print_str(stream->tokens[i]->slice);
+        print_slice(stream->tokens[i]->slice);
         printf("Line number: %lu Column number: %lu\n", stream->tokens[i]->line, stream->tokens[i]->column);
         printf("Type: %d\n", stream->tokens[i]->type);
+    }
+}
+void print_stream_to_file( FILE* file, const TokenStream* stream) {
+    if (stream == nullptr) return;
+    for (size_t i = 0; i < stream->size; i++)
+    {
+        if (stream->tokens[i] == nullptr) continue;
+
+        fprintf(file, "Token: " );
+        print_slice_to_file(file, stream->tokens[i]->slice);
+        fprintf(file,"Line number: %lu Column number: %lu\n", stream->tokens[i]->line, stream->tokens[i]->column);
+        fprintf(file,"Type: %d\n", stream->tokens[i]->type);
     }
 }
 void free_stream(const TokenStream* stream) {

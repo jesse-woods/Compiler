@@ -6,6 +6,7 @@
 #define COMPILER_STRING_SLICE_H
 
 #include <stddef.h> // IWYU pragma: keep
+#include <stdio.h>
 
 
 typedef struct
@@ -15,7 +16,8 @@ typedef struct
 } string_slice;
 
 const string_slice* slice_string(const char*, size_t, size_t);
-void print_str(const string_slice*);
+void print_slice(const string_slice*);
+void print_slice_to_file(FILE*, const string_slice*);
 void free_slice(const string_slice*);
 
 #endif //COMPILER_STRING_SLICE_H

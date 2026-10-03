@@ -181,7 +181,7 @@ void print_token(const Token* token) {
         return;
     }
     printf("Token: ");
-    print_str(token->slice);
+    print_slice(token->slice);
     printf("Line: %lu, Column: %lu\n", token->line, token->column);
     printf("Type: %d\n", token->type);
 }

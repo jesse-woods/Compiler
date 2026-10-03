@@ -25,7 +25,7 @@ const string_slice* slice_string(const char* sliced_string, const size_t start, 
     return_slice->length =  length;
     return return_slice;
 }
-void print_str(const string_slice* str)
+void print_slice(const string_slice* str)
 {
     if (str == nullptr) {
         printf("Attempt to print empty string.\n");
@@ -37,8 +37,16 @@ void print_str(const string_slice* str)
     printf("\n");
 
 }
+
+void print_slice_to_file(FILE* file, const string_slice* str) {
+    if (str == nullptr) return;
+    for (size_t i = 0; i < str->length; i++)
+        fprintf(file,"%c", str->slice[i]);
+    fprintf(file,"\n");
+}
 void free_slice(const string_slice* str) {
     if (str == nullptr) return;
+
 
     free((void*)str);
 

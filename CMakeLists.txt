@@ -7,7 +7,7 @@ set(CMAKE_C_EXTENSIONS ON)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_executable(Compiler
-        src/main.c
+        main.c
         src/lexer.c
         include/lexer.h
         include/token_stream.h
