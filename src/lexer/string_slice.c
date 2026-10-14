@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "string_slice.h"
+#include "../../include/lexer/token_stream/string_slice.h"
 //
 // Created by Jesse Woods on 9/5/26.
 //

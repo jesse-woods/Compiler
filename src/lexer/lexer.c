@@ -1,4 +1,4 @@
-#include "lexer.h"
+#include "../../include/lexer/lexer.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -40,7 +40,6 @@ TokenStream* lexical_analyzer(const char* input) {
         //move index "right" over one by one until a delimiter is found
         while (!isDelimiter(input[right])) {
             right++;
-            printf("%c", input[right]);
         }
         //Once a delimiter is found, if there's a window, create a token.
         if (left != right) {

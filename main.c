@@ -2,11 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <getopt.h>
-#include "lexer.h"
-#include "token_stream.h"
+#include "include/lexer/lexer.h"
+#include "include/lexer/token_stream/token_stream.h"
+#include "parser/parser.h"
 
 static bool isCFile(const char *);
-static void process_file(const char*);
+static void lex_file(const char*);
+static void parse_file(const char*);
 static void run_tests();
 
 
@@ -24,7 +26,7 @@ int main(const int argc, char *argv[]) {
       fileFromArgs = optarg;
       if (isCFile(optarg)) {
         printf("%s\n", optarg);
-        process_file(optarg);
+        lex_file(optarg);
       }
       break;
     case 'p':
@@ -33,6 +35,7 @@ int main(const int argc, char *argv[]) {
       if (isCFile(fileFromArgs)) {
         printf("%s\n", fileFromArgs);
       }
+      parse_file(fileFromArgs);
       break;
     case 't':
         printf("Tests called\n");
@@ -60,7 +63,7 @@ static bool isCFile(const char *fileName) {
   printf("filetype: %s\n", fileName + strlen(fileName) - 2);
   return strcmp(fileName + strlen(fileName) - 2, ".c") == 0;
 }
-static void process_file(const char* file) {
+static void lex_file(const char* file) {
   char* file_contents = stringify(file);
   const TokenStream* stream = lexical_analyzer(file_contents);
   FILE* fp = fopen("out.l", "w");
@@ -76,8 +79,15 @@ static void process_file(const char* file) {
   free(file_contents);
 
 }
+static void parse_file(const char* file) {
+  char* file_contents = stringify(file);
+  const TokenStream* stream = lexical_analyzer(file_contents);
+  parse_token_stream(stream);
+  free_stream(stream);
+  free(file_contents);
+}
 static void run_tests() {
-  process_file("tests/test.c");
+  lex_file("tests/test.c");
   char*  golden_file_contents = stringify("tests/test.golden");
   char* compared_test = stringify("out.l");
 

@@ -8,8 +8,10 @@
 
 enum TOKEN_TYPE
 {
+
+
     IDENTIFIER,
-    INTEGER,
+    INTEGER, 
     KEYWORD,
     SEMICOLON,
     COMMA,

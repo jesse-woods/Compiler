@@ -1,8 +1,8 @@
-#include "token.h"
+#include "../../include/lexer/token_stream/token.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "lexer.h"
+#include "../../include/lexer/lexer.h"
 //
 // Created by Jesse Woods on 9/7/26.
 //

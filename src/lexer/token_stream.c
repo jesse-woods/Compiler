@@ -1,8 +1,8 @@
 //
 // Created by Jesse Woods on 9/5/26.
 //
-#include "token_stream.h"
-#include "token.h"
+#include "../../include/lexer/token_stream/token_stream.h"
+#include "../../include/lexer/token_stream/token.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -49,19 +49,6 @@ void push_token(TokenStream* stream, Token* token)
     stream->tokens[stream->size] = token;
     stream->size++;
 }
-void pop_token(TokenStream* stream)
-{
-    if (stream != nullptr)
-    {
-        if (stream->size > 0){
-            stream->size--;
-        }
-    }
-    else
-    {
-        printf("Error popping token: Token Stream is null\n");
-    }
-}
 Token* token_at(const TokenStream* stream, const size_t index)
 {
     if (stream == nullptr || index >= stream->size)
@@ -71,14 +58,6 @@ Token* token_at(const TokenStream* stream, const size_t index)
         return nullptr;
     }
     return stream->tokens[index];
-}
-size_t token_count(const TokenStream* stream)
-{
-    return stream->size;
-}
-bool is_empty(const TokenStream* stream)
-{
-    return stream->size == 0;
 }
 void print_stream(const TokenStream* stream)
 {

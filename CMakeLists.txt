@@ -8,14 +8,19 @@ set(CMAKE_C_EXTENSIONS ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_executable(Compiler
         main.c
-        src/lexer.c
-        include/lexer.h
-        include/token_stream.h
-        src/token_stream.c
-        include/token.h
-        src/string_slice.c
-        include/string_slice.h
-        src/token.c
+        src/lexer/lexer.c
+        include/lexer/lexer.h
+        include/lexer/token_stream/token_stream.h
+        src/lexer/token_stream.c
+        include/lexer/token_stream/token.h
+        src/lexer/string_slice.c
+        include/lexer/token_stream/string_slice.h
+        src/lexer/token.c
+        include/parser/parser.h
+        src/parser/parser.c
+        include/parser/abstract_syntax_tree/abstract_syntax_tree.h
+        include/parser/abstract_syntax_tree/function.h
+        include/parser/abstract_syntax_tree/function_body.h
 )
 
 target_include_directories(Compiler PRIVATE include)
