@@ -29,4 +29,6 @@ I'm bringing this up because in the golden file test I use strcmp(), because the
 
 GitHub pushes have been less frequent recently, but that doesn't mean progress has stopped. I've spent considerable time outside of my IDE studying the official C grammar in Backus–Naur Form (BNF) and thinking through the logic required to distinguish between different grammatical constructs, such as function definitions and variable declarations.
 
-I'm becoming increasingly aware that I've reached a stage of the project that requires more theoretical understanding and planning. While the lexer involved more than simple string manipulation, the process of tokenization was relatively straightforward. Determining which grammatical constructs warrant their own data structures, how those structures should relate to one another, and how to translate formal syntax rules into parsing logic requires considerably more thought before writing code. 
+I'm becoming increasingly aware that I've reached a stage of the project that requires more theoretical understanding and planning. While the lexer involved more than simple string manipulation, the process of tokenization was relatively straightforward. Determining which grammatical constructs warrant their own data structures, how those structures should relate to one another, and how to translate formal syntax rules into parsing logic requires considerably more thought before writing code.
+
+10/14/26 - SOOO SLEEEEEEPY. Wrote some helper functions. Godnight compiler!

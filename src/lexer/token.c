@@ -7,7 +7,7 @@
 // Created by Jesse Woods on 9/7/26.
 //
 
-static bool compareStrToCString(const string_slice* str, const char* cstr) {
+bool compareStrToCString(const string_slice* str, const char* cstr) {
     size_t i = 0;
     while (i < str->length && cstr[i] != '\0') {
         if (str->slice[i] != cstr[i]) {
