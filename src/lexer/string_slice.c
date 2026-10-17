@@ -7,7 +7,22 @@
 // trims a substring from a given string's start and end
 // position
 
+bool isValidStr(const string_slice * str){
 
+    return str != nullptr || str->slice != nullptr || str->slice[0] != '\0' || str->length != 0;
+
+}
+bool compareStrToCString(const string_slice* str, const char* cstr) {
+    size_t i = 0;
+    while (i < str->length && cstr[i] != '\0') {
+        if (str->slice[i] != cstr[i]) {
+            return false;
+        }
+        i++;
+    }
+    // Both must reach the end simultaneously
+    return (i == str->length && cstr[i] == '\0');
+}
 const string_slice* slice_string(const char* sliced_string, const size_t start, const size_t length){
     if (sliced_string == nullptr || sliced_string[0] == '\0')
     {

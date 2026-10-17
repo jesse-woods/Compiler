@@ -7,17 +7,6 @@
 // Created by Jesse Woods on 9/7/26.
 //
 
-bool compareStrToCString(const string_slice* str, const char* cstr) {
-    size_t i = 0;
-    while (i < str->length && cstr[i] != '\0') {
-        if (str->slice[i] != cstr[i]) {
-            return false;
-        }
-        i++;
-    }
-    // Both must reach the end simultaneously
-    return (i == str->length && cstr[i] == '\0');
-}
 
 static bool isKeyword(const string_slice* str) {
     if (!isValidStr(str)) return false;
@@ -93,11 +82,7 @@ static bool isInteger(const string_slice* str) {
     printf("Attempt to compare invalid string to an integer.\n");
     return false;
 }
-static bool isValidStr(const string_slice * str){
 
-    return str != nullptr || str->slice != nullptr || str->slice[0] != '\0' || str->length != 0;
-
-}
 Token* create_token(const char* input, const size_t length, const size_t row, const size_t column) {
 
     if (input == nullptr || length == 0) {

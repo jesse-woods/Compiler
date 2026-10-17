@@ -50,11 +50,6 @@ typedef struct
 }Token;
 
 Token* create_token(const char*,size_t, size_t, size_t);
-static bool isValidStr(const string_slice*);
-static bool isInteger(const string_slice*);
-static bool isValidIdentifier(const string_slice*);
-static bool isKeyword(const string_slice*);
-bool compareStrToCString(const string_slice*, const char*);
 void print_token(const Token*);
 void free_token(Token*);
 

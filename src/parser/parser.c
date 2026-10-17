@@ -95,3 +95,46 @@ static bool is_declaration_specifier(const Token * token) {
     }
     return false;
 }
+static bool is_declarator(const Token * token) {
+    //TODO actually implement declarator recognization
+    if (token == nullptr) {
+        printf("Error: attempt to parse a NULL token.\n");
+        return false;
+    }
+    if (token->type == IDENTIFIER) {
+        return true;
+    }
+    return false;
+}
+static bool is_specifier_qualifier(const Token * token) {
+    if (token == nullptr) {
+        printf("Error: attempt to parse a NULL token.\n");
+        return false;
+    }
+    if (is_type_specifier(token) || is_type_qualifier(token)) {
+        return true;
+    }
+    return false;
+}
+/*---------------------------------------------------------------
+ * Parser recognition functions
+ * All recognition functions that take a TokenStream* and a size_t*
+ * follow the same cursor contract:
+ * SUCCESS:
+ *   Return true. *position will be advanced to the Token*
+ *   immediately following recognized grammatical structure
+ * FAILURE:
+ *   Return false and leave *position unchanged.
+ *
+ * Position is updated only upon success.
+ *---------------------------------------------------------------*/
+static bool is_function_definition(TokenStream *stream , size_t * position) {
+    size_t tmp_pos = *position;
+    if (is_declaration_specifier(token_at(stream, tmp_pos)) || is_declarator(token_at(stream, tmp_pos))) {
+        tmp_pos++;
+    }
+    return false;
+}
+
+
+

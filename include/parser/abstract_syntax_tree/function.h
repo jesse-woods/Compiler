@@ -8,9 +8,7 @@
 #include "parser/abstract_syntax_tree/function_body.h"
 
 typedef struct {
-    Token* return_type;
     Token* identifier;
     FunctionBody* body;
-
-}function;
+}Function;
 #endif //COMPILER_FUNCTION_H

@@ -16,6 +16,8 @@ typedef struct
 } string_slice;
 
 const string_slice* slice_string(const char*, size_t, size_t);
+bool isValidStr(const string_slice *);
+bool compareStrToCString(const string_slice*, const char*);
 void print_slice(const string_slice*);
 void print_slice_to_file(FILE*, const string_slice*);
 void free_slice(const string_slice*);

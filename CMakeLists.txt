@@ -21,6 +21,9 @@ add_executable(Compiler
         include/parser/abstract_syntax_tree/abstract_syntax_tree.h
         include/parser/abstract_syntax_tree/function.h
         include/parser/abstract_syntax_tree/function_body.h
+        include/parser/abstract_syntax_tree/program.h
+        include/parser/abstract_syntax_tree/return.h
+        include/parser/abstract_syntax_tree/constant.h
 )
 
 target_include_directories(Compiler PRIVATE include)
