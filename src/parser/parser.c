@@ -5,19 +5,7 @@
 
 #include "lexer/token_stream/token_stream.h"
 
-void parse_token_stream(const TokenStream* stream) {
-    if (stream == nullptr || stream->tokens == nullptr) {
-        printf("Error: attempt to parse a NULL token stream.\n");
-        return;
-    }
-    size_t pos = 0;
-    while (pos < stream->size) {
-        if (token_at(stream, pos)) {}
-        print_token(token_at(stream, pos));
 
-        pos++;
-    }
-}
 static bool is_type_specifier(const Token * token) {
 
     if (token == nullptr) {
@@ -28,7 +16,7 @@ static bool is_type_specifier(const Token * token) {
         return false;
     }
     static const char* type_specifiers[9] = {
-        "char", "double", "float", "int", "long", "short", "signed","unsigned", "void"
+        "char", "double", "float", "int", "long", "short", "signed", "unsigned", "void"
     };
     for (int i = 0; i < 9; i++) {
         if (compareStrToCString(token->slice, type_specifiers[i])) {
@@ -128,13 +116,143 @@ static bool is_specifier_qualifier(const Token * token) {
  *
  * Position is updated only upon success.
  *---------------------------------------------------------------*/
-static bool is_function_definition(TokenStream *stream , size_t * position) {
-    size_t tmp_pos = *position;
-    if (is_declaration_specifier(token_at(stream, tmp_pos)) || is_declarator(token_at(stream, tmp_pos))) {
-        tmp_pos++;
+static bool is_parameter(const TokenStream *stream , size_t *position) {
+    if (stream == nullptr || stream->tokens == nullptr) {
+        printf("Error: attempt to parse a NULL token stream.\n");
+        return false;
+    }
+    if (position == nullptr) {
+        printf("Error: attempt to parse a NULL position.\n");
+        return false;
+    }
+    if (*position > stream->size) {
+        printf("Attempt to parse a function definition beyond end of TokenStream.\n");
+        return false;
+    }
+
+    size_t temp_pos = *position;
+    while (temp_pos < stream->size
+        && (is_declaration_specifier(token_at(stream, temp_pos)) || token_at(stream, temp_pos)->type == IDENTIFIER)) {
+        temp_pos++;
+    }
+    if (temp_pos >= stream->size) { return false; }
+    if (token_at(stream, temp_pos)->type != COMMA && token_at(stream, temp_pos)->type != R_PARENTHESES) {
+        return false;
+    }
+    if (temp_pos - *position > 3) { return false; }
+    if (temp_pos - *position == 3) {
+        if (token_at(stream, temp_pos)->type == IDENTIFIER) { temp_pos++; }
+        else{ return false; }
+        //more stuff
+    }
+    if (temp_pos - *position == 2) {
+        if (token_at(stream, temp_pos)->type == IDENTIFIER && is_type_specifier(token_at(stream, temp_pos - 1))
+            && !compareStrToCString(token_at(stream,temp_pos -1)->slice, "void")) {
+            *position = temp_pos;
+            return true;
+            }
+    }
+    if (temp_pos - *position == 1) {
+        if (token_at(stream, temp_pos)->type == IDENTIFIER) {
+            *position = temp_pos;
+            return true;
+        }
+    }
+}
+static bool is_parameter_list(const TokenStream* stream, size_t * position) {
+    if (stream == nullptr || stream->tokens == nullptr) {
+        printf("Error: attempt to parse a NULL token stream.\n");
+        return false;
+    }
+    if (position == nullptr) {
+        printf("Error: attempt to parse a NULL position.\n");
+        return false;
+    }
+    if (*position > stream->size) {
+        printf("Attempt to parse a function definition beyond end of TokenStream.\n");
+        return false;
+    }
+
+    size_t temp_pos = *position;
+    if (token_at(stream, temp_pos)->type == R_PARENTHESES) {
+        temp_pos++;
+        *position = temp_pos;
+        return true;
+    }
+    if (temp_pos < stream->size -1 && compareStrToCString(token_at(stream, temp_pos)->slice, "void") && token_at(stream, temp_pos + 1)->type == R_PARENTHESES) {
+        temp_pos+=2;
+        *position = temp_pos;
+        return true;
+    }
+    while (temp_pos < stream->size && token_at(stream, temp_pos)->type != R_PARENTHESES) {
+        if (token_at(stream, temp_pos)->type != COMMA && !is_type_specifier(token_at(stream, temp_pos))) { return false; }
+        if (token_at(stream, temp_pos)->type == COMMA) { temp_pos++; }
+        if (is_type_specifier(token_at(stream, temp_pos))) {
+            if (compareStrToCString(token_at(stream, temp_pos)->slice, "void")) { temp_pos++; }
+            else {
+                if (temp_pos < stream->size - 1 && token_at(stream, temp_pos + 1)->type == IDENTIFIER) { temp_pos+=2; } else { return false; }
+            }
+        }
+    }
+
+    if (token_at(stream, temp_pos)->type != COMMA) {
+        *position = temp_pos;
+        return true;
     }
     return false;
 }
+static bool is_function_definition(const TokenStream *stream , size_t *position) {
+    if (stream == nullptr || stream->tokens == nullptr) {
+        printf("Error: attempt to parse a NULL token stream.\n");
+        return false;
+    }
+    if (position == nullptr) {
+        printf("Error: attempt to parse a NULL position.\n");
+        return false;
+    }
+    if (*position > stream->size) {
+        printf("Attempt to parse a function definition beyond end of TokenStream.\n");
+        return false;
+    }
+    size_t temp_pos = *position;
 
+    if (!is_declaration_specifier(token_at(stream, temp_pos))) {
+        return false;
+    }
+    while (is_declaration_specifier(token_at(stream, temp_pos))) {
+        temp_pos++;
+    }
+    bool contains_type_specifier = false;
+    for (size_t i = *position; i < temp_pos; i++) {
+
+        if (is_type_specifier(token_at(stream, *position))) {
+            contains_type_specifier = true;
+        }
+    }
+    if (!contains_type_specifier) { return false; }
+    if (temp_pos < stream->size && is_declarator(token_at(stream, temp_pos))) {
+        temp_pos++;
+    }
+    else{ return false; }
+    if (temp_pos < stream->size && token_at(stream, temp_pos)->type == L_PARENTHESES) {
+        temp_pos++;
+        //send to is_parameter_list
+    }
+    else { return false; }
+
+    *position = temp_pos;
+    return true;
+}
+void parse_token_stream(const TokenStream* stream) {
+    if (stream == nullptr || stream->tokens == nullptr) {
+        printf("Error: attempt to parse a NULL token stream.\n");
+        return;
+    }
+    size_t position = 0;
+    if (is_function_definition(stream, &position)) {
+        printf("Working so far...\n");
+    }
+    printf("New position: %lu\n", position);
+}
 
 

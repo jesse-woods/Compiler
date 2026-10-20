@@ -24,6 +24,8 @@ add_executable(Compiler
         include/parser/abstract_syntax_tree/program.h
         include/parser/abstract_syntax_tree/return.h
         include/parser/abstract_syntax_tree/constant.h
+        include/file_processor.h
+        src/file_processor.c
 )
 
 target_include_directories(Compiler PRIVATE include)
