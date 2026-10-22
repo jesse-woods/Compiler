@@ -5,7 +5,8 @@
 #include "include/lexer/lexer.h"
 #include "include/lexer/token_stream/token_stream.h"
 #include "parser/parser.h"
-#include "file_processor.h"
+#include "include/file_processor.h"
+#include "tests/parser_test.h"
 
 static bool isCFile(const char *);
 static void lex_file(const char*);
@@ -88,8 +89,8 @@ static void parse_file(const char* file) {
   free(file_contents);
 }
 static void run_tests() {
-  lex_file("tests/test.c");
-  char*  golden_file_contents = read_file_to_memory("tests/test.golden");
+  lex_file("tests/lexer/test.c");
+  char*  golden_file_contents = read_file_to_memory("tests/lexer/test.golden");
   char* compared_test = read_file_to_memory("out.l");
 
   if (strcmp(compared_test, golden_file_contents) == 0) {
@@ -101,6 +102,7 @@ static void run_tests() {
 
   free(golden_file_contents);
   free(compared_test);
+  run_parser_tests();
 }
 
 

@@ -4,7 +4,7 @@
 #include "parser/parser.h"
 
 #include "lexer/token_stream/token_stream.h"
-
+#include "parser/parser_function_names.h"
 
 static bool is_type_specifier(const Token * token) {
 
@@ -139,7 +139,7 @@ static bool is_parameter(const TokenStream *stream , size_t *position) {
     if (token_at(stream, temp_pos)->type != COMMA && token_at(stream, temp_pos)->type != R_PARENTHESES) {
         return false;
     }
-    if (temp_pos - *position > 3) { return false; }
+    if (temp_pos - *position > 4) { return false; }
     if (temp_pos - *position == 3) {
         if (token_at(stream, temp_pos)->type == IDENTIFIER) { temp_pos++; }
         else{ return false; }
@@ -254,5 +254,11 @@ void parse_token_stream(const TokenStream* stream) {
     }
     printf("New position: %lu\n", position);
 }
-
+void test_parse_function(const TokenStream *stream,const enum PARSER_FUNCTION_NAME function_name) {
+    if (function_name == IS_PARAMETER) {
+        size_t position = 0;
+        const bool function_return_value = is_parameter(stream, &position);
+        printf("Test 1:\nFunction returned: %hhd  New position: %lu\n", function_return_value, position);
+    }
+}
 

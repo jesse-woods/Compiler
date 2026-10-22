@@ -26,6 +26,9 @@ add_executable(Compiler
         include/parser/abstract_syntax_tree/constant.h
         include/file_processor.h
         src/file_processor.c
+        tests/parser/parser_test.c
+        include/tests/parser_test.h
+        include/parser/parser_function_names.h
 )
 
 target_include_directories(Compiler PRIVATE include)
