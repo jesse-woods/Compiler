@@ -44,13 +44,19 @@ static bool is_storage_class_specifier(const Token * token) {
     }
     return false;
 }
-
-static bool is_type_qualifier(const Token * token) {
+static bool is_signed_or_unsigned(const Token * token) {
     if (token == nullptr) {
         printf("Error: attempt to parse a NULL token.\n");
         return false;
     }
-    if (token->type != KEYWORD) {
+    if (compareStrToCString(token->slice, "signed") || compareStrToCString(token->slice, "unsigned")) {
+        return true;
+    }
+    return false;
+}
+static bool is_type_qualifier(const Token * token) {
+    if (token == nullptr) {
+        printf("Error: attempt to parse a NULL token.\n");
         return false;
     }
     if (compareStrToCString(token->slice, "const") || compareStrToCString(token->slice, "volatile")) {
@@ -58,7 +64,6 @@ static bool is_type_qualifier(const Token * token) {
     }
     return false;
 }
-
 static bool is_struct_or_union(const Token * token) {
     if (token == nullptr) {
         printf("Error: attempt to parse a NULL token.\n");
@@ -72,7 +77,19 @@ static bool is_struct_or_union(const Token * token) {
     }
     return false;
 }
-
+static bool is_short_or_long(const Token * token) {
+    if (token == nullptr) {
+        printf("Error: attempt to parse a NULL token.\n");
+        return false;
+    }
+    if (token->type != KEYWORD) {
+        return false;
+    }
+    if (compareStrToCString(token->slice, "short") || compareStrToCString(token->slice, "long")) {
+        return true;
+    }
+    return false;
+}
 static bool is_declaration_specifier(const Token * token) {
     if (token == nullptr) {
         printf("Error: attempt to parse a NULL token.\n");
@@ -116,7 +133,128 @@ static bool is_specifier_qualifier(const Token * token) {
  *
  * Position is updated only upon success.
  *---------------------------------------------------------------*/
+static bool is_valid_two_token_declaration_specifier_sequence(const TokenStream *stream, size_t *position) {
+    //Memory guards
+    if (stream == nullptr || stream->tokens == nullptr) {
+        printf("Error: attempt to parse a NULL token stream.\n");
+        return false;
+    }
+    if (position == nullptr) {
+        printf("Error: attempt to parse a NULL position.\n");
+        return false;
+    }
+    if (*position > stream->size - 2) {
+        printf("Attempt to parse a function definition beyond end of TokenStream.\n");
+        return false;
+    }
+
+    //Function logic
+    const size_t temp_pos = *position;
+    if (compareStrToCString(token_at(stream, temp_pos)->slice, "void")) { return false; }
+    if (is_type_specifier(token_at(stream, temp_pos)) && token_at(stream, temp_pos + 1)->type == IDENTIFIER){
+        *position+=2;
+        return true;
+    }
+    return false;
+}
+static bool is_valid_three_token_declaration_specifier_sequence(const TokenStream *stream, size_t *position) {
+    //Memory guards
+    if (stream == nullptr || stream->tokens == nullptr) {
+        printf("Error: attempt to parse a NULL token stream.\n");
+        return false;
+    }
+    if (position == nullptr) {
+        printf("Error: attempt to parse a NULL position.\n");
+        return false;
+    }
+    if (*position > stream->size - 3) {
+        printf("Attempt to parse a function definition beyond end of TokenStream.\n");
+        return false;
+    }
+
+    //Function logic
+    const size_t temp_pos = *position;
+
+    if (compareStrToCString(token_at(stream, temp_pos)->slice, "void") || compareStrToCString(token_at(stream, temp_pos + 1)->slice, "void")) { return false; }
+    if (token_at(stream, temp_pos + 2)->type == IDENTIFIER) {
+        //reject signed signed, unsigned unsigned, signed, unsigned, and unsigned signed
+        if (is_signed_or_unsigned(token_at(stream, temp_pos)) && is_signed_or_unsigned(token_at(stream, temp_pos + 1))) { return false; }
+        // reject short float, short double, long float, and short long
+        if (compareStrToCString(token_at(stream, temp_pos)->slice,"short") && compareStrToCString(token_at(stream, temp_pos + 1)->slice, "float")) { return false;}
+        if (compareStrToCString(token_at(stream, temp_pos)->slice,"short") && compareStrToCString(token_at(stream, temp_pos + 1)->slice, "double")) { return false;}
+        if (compareStrToCString(token_at(stream, temp_pos)->slice,"long") && compareStrToCString(token_at(stream, temp_pos + 1)->slice, "float")) { return false;}
+        if (compareStrToCString(token_at(stream, temp_pos)->slice,"short") && compareStrToCString(token_at(stream, temp_pos + 1)->slice, "long")) { return false;}
+        if (compareStrToCString(token_at(stream, temp_pos)->slice,"long") && compareStrToCString(token_at(stream, temp_pos + 1)->slice, "short")) { return false;}
+
+        //reject signed double, unsigned double, signed float, unsigned float
+        if (compareStrToCString(token_at(stream, temp_pos)->slice,"signed") && compareStrToCString(token_at(stream, temp_pos + 1)->slice, "float")) { return false;}
+        if (compareStrToCString(token_at(stream, temp_pos)->slice,"signed") && compareStrToCString(token_at(stream, temp_pos + 1)->slice, "double")) { return false;}
+        if (compareStrToCString(token_at(stream, temp_pos)->slice,"unsigned") && compareStrToCString(token_at(stream, temp_pos + 1)->slice, "float")) { return false;}
+        if (compareStrToCString(token_at(stream, temp_pos)->slice,"unsigned") && compareStrToCString(token_at(stream, temp_pos + 1)->slice, "double")) { return false;}
+        if (compareStrToCString(token_at(stream, temp_pos)->slice,"float") && compareStrToCString(token_at(stream, temp_pos + 1)->slice, "signed")) { return false;}
+        if (compareStrToCString(token_at(stream, temp_pos)->slice,"float") && compareStrToCString(token_at(stream, temp_pos + 1)->slice, "unsigned")) { return false;}
+        if (compareStrToCString(token_at(stream, temp_pos)->slice,"double") && compareStrToCString(token_at(stream, temp_pos + 1)->slice, "signed")) { return false;}
+        if (compareStrToCString(token_at(stream, temp_pos)->slice,"double") && compareStrToCString(token_at(stream, temp_pos + 1)->slice, "unsigned")) { return false;}
+
+
+        //Handle general case
+        if ((is_type_specifier(token_at(stream, temp_pos)) && is_type_qualifier(token_at(stream, temp_pos + 1)))||
+            (is_type_qualifier(token_at(stream, temp_pos)) && is_type_specifier(token_at(stream, temp_pos + 1)))||
+            (is_signed_or_unsigned(token_at(stream, temp_pos)) && is_type_specifier(token_at(stream, temp_pos + 1)))||
+            (is_type_specifier(token_at(stream, temp_pos)) && is_signed_or_unsigned(token_at(stream, temp_pos + 1)))||
+            (is_short_or_long(token_at(stream, temp_pos)) && is_type_specifier(token_at(stream, temp_pos + 1)))||
+            (is_type_specifier(token_at(stream, temp_pos)) && is_short_or_long(token_at(stream, temp_pos + 1)))) {
+            *position+=3;
+            return true;
+            }
+    }
+    return false;
+}
+static bool is_valid_declaration_specifier_sequence(const TokenStream *stream, size_t *position) {
+    if (stream == nullptr || stream->tokens == nullptr) {
+        printf("Error: attempt to parse a NULL token stream.\n");
+        return false;
+    }
+    if (position == nullptr) {
+        printf("Error: attempt to parse a NULL position.\n");
+        return false;
+    }
+    //Function logic
+    size_t temporary_position = *position;
+    //Function logic
+    if (*position + 3 <= stream->size) {
+        if (is_valid_three_token_declaration_specifier_sequence(stream, &temporary_position)) {
+            *position = temporary_position;
+            return true;
+        }
+        if (is_valid_two_token_declaration_specifier_sequence(stream, &temporary_position)) {
+            *position = temporary_position;
+            return true;
+        }
+        if (compareStrToCString(token_at(stream, *position)->slice, "void")) {
+            *position += 1;
+            return true;
+        }
+    }
+    if (*position + 2 <= stream->size) {
+        if (is_valid_two_token_declaration_specifier_sequence(stream, &temporary_position)) {
+            *position = temporary_position;
+            return true;
+        }
+        if (compareStrToCString(token_at(stream, *position)->slice, "void")) {
+            *position += 1;
+            return true;
+        }
+    }
+    if (*position + 1 <= stream->size && compareStrToCString(token_at(stream, *position)->slice, "void")) {
+        *position+=1;
+        return true;
+    }
+    return false;
+}
 static bool is_parameter(const TokenStream *stream , size_t *position) {
+
+    //Memory guards
     if (stream == nullptr || stream->tokens == nullptr) {
         printf("Error: attempt to parse a NULL token stream.\n");
         return false;
@@ -129,36 +267,20 @@ static bool is_parameter(const TokenStream *stream , size_t *position) {
         printf("Attempt to parse a function definition beyond end of TokenStream.\n");
         return false;
     }
-
-    size_t temp_pos = *position;
-    while (temp_pos < stream->size
-        && (is_declaration_specifier(token_at(stream, temp_pos)) || token_at(stream, temp_pos)->type == IDENTIFIER)) {
-        temp_pos++;
-    }
-    if (temp_pos >= stream->size) { return false; }
-    if (token_at(stream, temp_pos)->type != COMMA && token_at(stream, temp_pos)->type != R_PARENTHESES) {
-        return false;
-    }
-    if (temp_pos - *position > 4) { return false; }
-    if (temp_pos - *position == 3) {
-        if (token_at(stream, temp_pos)->type == IDENTIFIER) { temp_pos++; }
-        else{ return false; }
-        //more stuff
-    }
-    if (temp_pos - *position == 2) {
-        if (token_at(stream, temp_pos)->type == IDENTIFIER && is_type_specifier(token_at(stream, temp_pos - 1))
-            && !compareStrToCString(token_at(stream,temp_pos -1)->slice, "void")) {
-            *position = temp_pos;
-            return true;
+    size_t temporary_position = *position;
+    //Function logic
+    if (is_valid_declaration_specifier_sequence(stream, &temporary_position)) {
+        if (temporary_position < stream->size) {
+            if (temporary_position == 1 && token_at(stream, temporary_position)->type != R_PARENTHESES) { return false; }
+            if (token_at(stream, temporary_position)->type == R_PARENTHESES || token_at(stream, temporary_position)->type == COMMA) {
+                *position = temporary_position;
+                return true;
             }
-    }
-    if (temp_pos - *position == 1) {
-        if (token_at(stream, temp_pos)->type == IDENTIFIER) {
-            *position = temp_pos;
-            return true;
         }
     }
+    return false;
 }
+
 static bool is_parameter_list(const TokenStream* stream, size_t * position) {
     if (stream == nullptr || stream->tokens == nullptr) {
         printf("Error: attempt to parse a NULL token stream.\n");
@@ -201,6 +323,7 @@ static bool is_parameter_list(const TokenStream* stream, size_t * position) {
     }
     return false;
 }
+
 static bool is_function_definition(const TokenStream *stream , size_t *position) {
     if (stream == nullptr || stream->tokens == nullptr) {
         printf("Error: attempt to parse a NULL token stream.\n");
@@ -254,11 +377,17 @@ void parse_token_stream(const TokenStream* stream) {
     }
     printf("New position: %lu\n", position);
 }
-void test_parse_function(const TokenStream *stream,const enum PARSER_FUNCTION_NAME function_name) {
+void test_parse_function(const TokenStream *stream,const enum PARSER_FUNCTION_NAME function_name, bool expected_result, size_t expected_position) {
     if (function_name == IS_PARAMETER) {
         size_t position = 0;
         const bool function_return_value = is_parameter(stream, &position);
-        printf("Test 1:\nFunction returned: %hhd  New position: %lu\n", function_return_value, position);
+        if (function_return_value == expected_result && position == expected_position) {
+            printf("Test passed.\n");
+        }
+        else {
+            printf("Test failed. ");
+            printf("\nExpected result: %d Actual result: %d Expected position: %lu Actual position: %lu\n", expected_result, function_return_value, expected_position, position);
+        }
     }
 }
 
