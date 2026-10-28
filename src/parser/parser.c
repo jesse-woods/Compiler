@@ -149,9 +149,9 @@ static bool is_valid_two_token_declaration_specifier_sequence(const TokenStream 
     }
 
     //Function logic
-    const size_t temp_pos = *position;
-    if (compareStrToCString(token_at(stream, temp_pos)->slice, "void")) { return false; }
-    if (is_type_specifier(token_at(stream, temp_pos)) && token_at(stream, temp_pos + 1)->type == IDENTIFIER){
+    const size_t temporary_position = *position;
+    if (compareStrToCString(token_at(stream, temporary_position)->slice, "void")) { return false; }
+    if (is_type_specifier(token_at(stream, temporary_position)) && token_at(stream, temporary_position + 1)->type == IDENTIFIER){
         *position+=2;
         return true;
     }
@@ -173,37 +173,37 @@ static bool is_valid_three_token_declaration_specifier_sequence(const TokenStrea
     }
 
     //Function logic
-    const size_t temp_pos = *position;
+    const size_t temporary_position = *position;
 
-    if (compareStrToCString(token_at(stream, temp_pos)->slice, "void") || compareStrToCString(token_at(stream, temp_pos + 1)->slice, "void")) { return false; }
-    if (token_at(stream, temp_pos + 2)->type == IDENTIFIER) {
+    if (compareStrToCString(token_at(stream, temporary_position)->slice, "void") || compareStrToCString(token_at(stream, temporary_position + 1)->slice, "void")) { return false; }
+    if (token_at(stream, temporary_position + 2)->type == IDENTIFIER) {
         //reject signed signed, unsigned unsigned, signed, unsigned, and unsigned signed
-        if (is_signed_or_unsigned(token_at(stream, temp_pos)) && is_signed_or_unsigned(token_at(stream, temp_pos + 1))) { return false; }
+        if (is_signed_or_unsigned(token_at(stream, temporary_position)) && is_signed_or_unsigned(token_at(stream, temporary_position + 1))) { return false; }
         // reject short float, short double, long float, and short long
-        if (compareStrToCString(token_at(stream, temp_pos)->slice,"short") && compareStrToCString(token_at(stream, temp_pos + 1)->slice, "float")) { return false;}
-        if (compareStrToCString(token_at(stream, temp_pos)->slice,"short") && compareStrToCString(token_at(stream, temp_pos + 1)->slice, "double")) { return false;}
-        if (compareStrToCString(token_at(stream, temp_pos)->slice,"long") && compareStrToCString(token_at(stream, temp_pos + 1)->slice, "float")) { return false;}
-        if (compareStrToCString(token_at(stream, temp_pos)->slice,"short") && compareStrToCString(token_at(stream, temp_pos + 1)->slice, "long")) { return false;}
-        if (compareStrToCString(token_at(stream, temp_pos)->slice,"long") && compareStrToCString(token_at(stream, temp_pos + 1)->slice, "short")) { return false;}
+        if (compareStrToCString(token_at(stream, temporary_position)->slice,"short") && compareStrToCString(token_at(stream, temporary_position + 1)->slice, "float")) { return false;}
+        if (compareStrToCString(token_at(stream, temporary_position)->slice,"short") && compareStrToCString(token_at(stream, temporary_position + 1)->slice, "double")) { return false;}
+        if (compareStrToCString(token_at(stream, temporary_position)->slice,"long") && compareStrToCString(token_at(stream, temporary_position + 1)->slice, "float")) { return false;}
+        if (compareStrToCString(token_at(stream, temporary_position)->slice,"short") && compareStrToCString(token_at(stream, temporary_position + 1)->slice, "long")) { return false;}
+        if (compareStrToCString(token_at(stream, temporary_position)->slice,"long") && compareStrToCString(token_at(stream, temporary_position + 1)->slice, "short")) { return false;}
 
         //reject signed double, unsigned double, signed float, unsigned float
-        if (compareStrToCString(token_at(stream, temp_pos)->slice,"signed") && compareStrToCString(token_at(stream, temp_pos + 1)->slice, "float")) { return false;}
-        if (compareStrToCString(token_at(stream, temp_pos)->slice,"signed") && compareStrToCString(token_at(stream, temp_pos + 1)->slice, "double")) { return false;}
-        if (compareStrToCString(token_at(stream, temp_pos)->slice,"unsigned") && compareStrToCString(token_at(stream, temp_pos + 1)->slice, "float")) { return false;}
-        if (compareStrToCString(token_at(stream, temp_pos)->slice,"unsigned") && compareStrToCString(token_at(stream, temp_pos + 1)->slice, "double")) { return false;}
-        if (compareStrToCString(token_at(stream, temp_pos)->slice,"float") && compareStrToCString(token_at(stream, temp_pos + 1)->slice, "signed")) { return false;}
-        if (compareStrToCString(token_at(stream, temp_pos)->slice,"float") && compareStrToCString(token_at(stream, temp_pos + 1)->slice, "unsigned")) { return false;}
-        if (compareStrToCString(token_at(stream, temp_pos)->slice,"double") && compareStrToCString(token_at(stream, temp_pos + 1)->slice, "signed")) { return false;}
-        if (compareStrToCString(token_at(stream, temp_pos)->slice,"double") && compareStrToCString(token_at(stream, temp_pos + 1)->slice, "unsigned")) { return false;}
+        if (compareStrToCString(token_at(stream, temporary_position)->slice,"signed") && compareStrToCString(token_at(stream, temporary_position + 1)->slice, "float")) { return false;}
+        if (compareStrToCString(token_at(stream, temporary_position)->slice,"signed") && compareStrToCString(token_at(stream, temporary_position + 1)->slice, "double")) { return false;}
+        if (compareStrToCString(token_at(stream, temporary_position)->slice,"unsigned") && compareStrToCString(token_at(stream, temporary_position + 1)->slice, "float")) { return false;}
+        if (compareStrToCString(token_at(stream, temporary_position)->slice,"unsigned") && compareStrToCString(token_at(stream, temporary_position + 1)->slice, "double")) { return false;}
+        if (compareStrToCString(token_at(stream, temporary_position)->slice,"float") && compareStrToCString(token_at(stream, temporary_position + 1)->slice, "signed")) { return false;}
+        if (compareStrToCString(token_at(stream, temporary_position)->slice,"float") && compareStrToCString(token_at(stream, temporary_position + 1)->slice, "unsigned")) { return false;}
+        if (compareStrToCString(token_at(stream, temporary_position)->slice,"double") && compareStrToCString(token_at(stream, temporary_position + 1)->slice, "signed")) { return false;}
+        if (compareStrToCString(token_at(stream, temporary_position)->slice,"double") && compareStrToCString(token_at(stream, temporary_position + 1)->slice, "unsigned")) { return false;}
 
 
         //Handle general case
-        if ((is_type_specifier(token_at(stream, temp_pos)) && is_type_qualifier(token_at(stream, temp_pos + 1)))||
-            (is_type_qualifier(token_at(stream, temp_pos)) && is_type_specifier(token_at(stream, temp_pos + 1)))||
-            (is_signed_or_unsigned(token_at(stream, temp_pos)) && is_type_specifier(token_at(stream, temp_pos + 1)))||
-            (is_type_specifier(token_at(stream, temp_pos)) && is_signed_or_unsigned(token_at(stream, temp_pos + 1)))||
-            (is_short_or_long(token_at(stream, temp_pos)) && is_type_specifier(token_at(stream, temp_pos + 1)))||
-            (is_type_specifier(token_at(stream, temp_pos)) && is_short_or_long(token_at(stream, temp_pos + 1)))) {
+        if ((is_type_specifier(token_at(stream, temporary_position)) && is_type_qualifier(token_at(stream, temporary_position + 1)))||
+            (is_type_qualifier(token_at(stream, temporary_position)) && is_type_specifier(token_at(stream, temporary_position + 1)))||
+            (is_signed_or_unsigned(token_at(stream, temporary_position)) && is_type_specifier(token_at(stream, temporary_position + 1)))||
+            (is_type_specifier(token_at(stream, temporary_position)) && is_signed_or_unsigned(token_at(stream, temporary_position + 1)))||
+            (is_short_or_long(token_at(stream, temporary_position)) && is_type_specifier(token_at(stream, temporary_position + 1)))||
+            (is_type_specifier(token_at(stream, temporary_position)) && is_short_or_long(token_at(stream, temporary_position + 1)))) {
             *position+=3;
             return true;
             }
@@ -231,24 +231,12 @@ static bool is_valid_declaration_specifier_sequence(const TokenStream *stream, s
             *position = temporary_position;
             return true;
         }
-        if (compareStrToCString(token_at(stream, *position)->slice, "void")) {
-            *position += 1;
-            return true;
-        }
     }
     if (*position + 2 <= stream->size) {
         if (is_valid_two_token_declaration_specifier_sequence(stream, &temporary_position)) {
             *position = temporary_position;
             return true;
         }
-        if (compareStrToCString(token_at(stream, *position)->slice, "void")) {
-            *position += 1;
-            return true;
-        }
-    }
-    if (*position + 1 <= stream->size && compareStrToCString(token_at(stream, *position)->slice, "void")) {
-        *position+=1;
-        return true;
     }
     return false;
 }
@@ -294,32 +282,26 @@ static bool is_parameter_list(const TokenStream* stream, size_t * position) {
         printf("Attempt to parse a function definition beyond end of TokenStream.\n");
         return false;
     }
-
-    size_t temp_pos = *position;
-    if (token_at(stream, temp_pos)->type == R_PARENTHESES) {
-        temp_pos++;
-        *position = temp_pos;
+    size_t temporary_position = *position;
+    if (token_at(stream, temporary_position)->type != L_PARENTHESES) { return false; }
+    if (temporary_position + 1 >= stream->size) { return false; }
+    if (token_at(stream, temporary_position + 1)->type == R_PARENTHESES) {
+        *position+=2;
         return true;
     }
-    if (temp_pos < stream->size -1 && compareStrToCString(token_at(stream, temp_pos)->slice, "void") && token_at(stream, temp_pos + 1)->type == R_PARENTHESES) {
-        temp_pos+=2;
-        *position = temp_pos;
+    if (temporary_position + 2 <= stream->size && compareStrToCString(token_at(stream, temporary_position + 1)->slice, "void") && token_at(stream, temporary_position + 2)->type == R_PARENTHESES) {
+        *position += 3;
         return true;
     }
-    while (temp_pos < stream->size && token_at(stream, temp_pos)->type != R_PARENTHESES) {
-        if (token_at(stream, temp_pos)->type != COMMA && !is_type_specifier(token_at(stream, temp_pos))) { return false; }
-        if (token_at(stream, temp_pos)->type == COMMA) { temp_pos++; }
-        if (is_type_specifier(token_at(stream, temp_pos))) {
-            if (compareStrToCString(token_at(stream, temp_pos)->slice, "void")) { temp_pos++; }
-            else {
-                if (temp_pos < stream->size - 1 && token_at(stream, temp_pos + 1)->type == IDENTIFIER) { temp_pos+=2; } else { return false; }
-            }
+    if (temporary_position + 1 < stream->size) {
+        temporary_position++;
+    }
+    while (is_parameter(stream, &temporary_position)){
+        temporary_position++;
+        if (token_at(stream, temporary_position - 1)->type == R_PARENTHESES){
+            *position = temporary_position;
+            return true;
         }
-    }
-
-    if (token_at(stream, temp_pos)->type != COMMA) {
-        *position = temp_pos;
-        return true;
     }
     return false;
 }
@@ -377,17 +359,27 @@ void parse_token_stream(const TokenStream* stream) {
     }
     printf("New position: %lu\n", position);
 }
-void test_parse_function(const TokenStream *stream,const enum PARSER_FUNCTION_NAME function_name, bool expected_result, size_t expected_position) {
+bool test_parse_function(const TokenStream *stream, const enum PARSER_FUNCTION_NAME function_name, const bool expected_result, size_t expected_position) {
     if (function_name == IS_PARAMETER) {
         size_t position = 0;
         const bool function_return_value = is_parameter(stream, &position);
-        if (function_return_value == expected_result && position == expected_position) {
-            printf("Test passed.\n");
-        }
-        else {
-            printf("Test failed. ");
+        if (function_return_value != expected_result || position != expected_position) {
+
+            printf("Test failed.\n");
+            print_stream(stream);
             printf("\nExpected result: %d Actual result: %d Expected position: %lu Actual position: %lu\n", expected_result, function_return_value, expected_position, position);
+            return false;
         }
     }
+    if (function_name == IS_PARAMETER_LIST) {
+        size_t position = 0;
+        const bool function_return_value = is_parameter_list(stream, &position);
+        if (function_return_value != expected_result || position != expected_position) {
+            printf("Test failed.\n");
+            printf("Expected result: %d Actual result: %d Expected position: %lu Actual position: %lu\n", expected_result, function_return_value, expected_position, position);
+            return false;
+        }
+    }
+    return true;
 }
 

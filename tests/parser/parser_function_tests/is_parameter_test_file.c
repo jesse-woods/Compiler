@@ -1,5 +1,3 @@
-0 0 void,
-1 1 void)
 1 2 int a,
 1 2 int a)
 1 3 signed int b,
@@ -22,5 +20,6 @@
 0 0 double signed a)
 0 0 volatile void a,
 0 0 )
+1 2 float a,
 0 0 int a
 0 0 int a b)

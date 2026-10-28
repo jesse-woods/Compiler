@@ -8,5 +8,5 @@
 #include "parser/parser_function_names.h"
 
 void parse_token_stream(const TokenStream*);
-void test_parse_function(const TokenStream*, enum PARSER_FUNCTION_NAME, bool, size_t);
+bool test_parse_function(const TokenStream*, enum PARSER_FUNCTION_NAME, bool, size_t);
 #endif //COMPILER_PARSER_H
