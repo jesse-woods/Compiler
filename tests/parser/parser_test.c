@@ -14,6 +14,8 @@
 static void test_runner(char*, enum PARSER_FUNCTION_NAME);
 void run_parser_tests() {
 
+    printf("\n----------------------------Parser helper function tests---------------------------------\n\n");
+
     //Run tests for is_parameter functionality
     char* file_contents = read_file_to_memory("tests/parser/parser_function_tests/is_parameter_test_file.c");
     test_runner(file_contents, IS_PARAMETER);
@@ -22,6 +24,10 @@ void run_parser_tests() {
     char* file_contents_2 = read_file_to_memory("tests/parser/parser_function_tests/is_parameter_list_test_file.c");
     test_runner(file_contents_2, IS_PARAMETER_LIST);
     free(file_contents_2);
+    //Run tests for is_function_definition functionality
+    char* file_contents_3 = read_file_to_memory("tests/parser/parser_function_tests/is_function_definition_test_file.c");
+    test_runner(file_contents_3, IS_FUNCTION_DEFINITION);
+    free(file_contents_3);
 }
 void test_runner(char* file_contents, const enum PARSER_FUNCTION_NAME function_name) {
 

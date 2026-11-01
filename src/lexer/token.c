@@ -2,14 +2,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../../include/lexer/lexer.h"
 //
 // Created by Jesse Woods on 9/7/26.
 //
 
 
-static bool isKeyword(const string_slice* str) {
-    if (!isValidStr(str)) return false;
+static bool is_valid_keyword(const string_slice* str) {
+    if (!is_valid_string_slice(str)) return false;
 
     //We make this a static const so when called, the array of keywords is built only once
     static const char* keywords[32] = {
@@ -24,7 +23,7 @@ static bool isKeyword(const string_slice* str) {
     };
 
     for (int i = 0; i < 32; i++) {
-        if (compareStrToCString(str, keywords[i])) {
+        if (compare_string_slice_to_c_string(str, keywords[i])) {
             return true;
         }
     }
@@ -37,8 +36,8 @@ static bool isKeyword(const string_slice* str) {
 * Identifiers cannot be keywords in C (such as int, return, if, while etc.)
 * ------------------------------------------------------------------------------------------------------------------*/
 
-static bool isValidIdentifier(const string_slice* str) {
-    if (!isValidStr(str) || str->length == 0) {
+static bool is_valid_identifier(const string_slice* str) {
+    if (!is_valid_string_slice(str) || str->length == 0) {
         printf("Attempt to check if invalid string is identifier.\n");
         return false;
     }
@@ -61,15 +60,15 @@ static bool isValidIdentifier(const string_slice* str) {
     }
 
     // Keywords are not identifiers
-    if (isKeyword(str)) {
+    if (is_valid_keyword(str)) {
         return false;
     }
 
     return true;
 }
 // check for an integer value
-static bool isInteger(const string_slice* str) {
-    if (isValidStr(str))
+static bool is_integer(const string_slice* str) {
+    if (is_valid_string_slice(str))
     {
         int i = 0;
         while (str->slice[i] == '0' || str->slice[i] == '1' || str->slice[i] == '2' || str->slice[i] == '3'
@@ -101,9 +100,9 @@ Token* create_token(const char* input, const size_t length, const size_t row, co
     token->column = column;
     token->line = row;
 
-    if (isKeyword(token->slice)) { token->type = KEYWORD; }
-    else if (isValidIdentifier(token->slice)) {token->type = IDENTIFIER;}
-    else if (isInteger(token->slice)){ token->type = INTEGER; }
+    if (is_valid_keyword(token->slice)) { token->type = KEYWORD; }
+    else if (is_valid_identifier(token->slice)) {token->type = IDENTIFIER;}
+    else if (is_integer(token->slice)){ token->type = INTEGER; }
 
     //If length is 1, test for specific types of punctuation or operators
     else if (length == 1) {

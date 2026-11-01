@@ -7,12 +7,12 @@
 // trims a substring from a given string's start and end
 // position
 
-bool isValidStr(const string_slice * str){
+bool is_valid_string_slice(const string_slice * str){
 
-    return str != nullptr || str->slice != nullptr || str->slice[0] != '\0' || str->length != 0;
+    return str != nullptr && str->slice != nullptr &&  str->length != 0;
 
 }
-bool compareStrToCString(const string_slice* str, const char* cstr) {
+bool compare_string_slice_to_c_string(const string_slice* str, const char* cstr) {
     size_t i = 0;
     while (i < str->length && cstr[i] != '\0') {
         if (str->slice[i] != cstr[i]) {
@@ -54,10 +54,9 @@ void print_slice(const string_slice* str)
 }
 
 void print_slice_to_file(FILE* file, const string_slice* str) {
-    if (str == nullptr) return;
-    for (size_t i = 0; i < str->length; i++)
-        fprintf(file,"%c", str->slice[i]);
-    fprintf(file,"\n");
+    if (file == nullptr||str == nullptr || str->slice == nullptr) return;
+    if(str->length > 0){ fwrite(str->slice, sizeof(char),str->length, file); }
+    fputc('\n', file);
 }
 void free_slice(const string_slice* str) {
     if (str == nullptr) return;

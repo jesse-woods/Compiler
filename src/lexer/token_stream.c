@@ -53,8 +53,8 @@ Token* token_at(const TokenStream* stream, const size_t index)
 {
     if (stream == nullptr || index >= stream->size)
     {
-        printf("Size: %lu\n", stream->size);
         printf("Error: index out of bounds or stream is null\n");
+        printf("Referenced index: %lu", index);
         return nullptr;
     }
     return stream->tokens[index];
@@ -74,15 +74,15 @@ void print_stream(const TokenStream* stream)
     }
 }
 void print_stream_to_file( FILE* file, const TokenStream* stream) {
-    if (stream == nullptr) return;
+    if (stream == nullptr || stream->tokens == nullptr || file == nullptr) return;
     for (size_t i = 0; i < stream->size; i++)
     {
         if (stream->tokens[i] == nullptr) continue;
 
-        fprintf(file, "Token: " );
+        fputs("Token: ", file);
         print_slice_to_file(file, stream->tokens[i]->slice);
-        fprintf(file,"Line number: %lu Column number: %lu\n", stream->tokens[i]->line, stream->tokens[i]->column);
-        fprintf(file,"Type: %d\n", stream->tokens[i]->type);
+        fprintf(file,"Line number: %zu Column number: %zu\n", stream->tokens[i]->line, stream->tokens[i]->column);
+        fprintf(file,"Type: %d\n", (int)stream->tokens[i]->type);
     }
 }
 void free_stream(const TokenStream* stream) {
