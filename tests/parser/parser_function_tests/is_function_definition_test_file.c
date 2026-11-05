@@ -1,3 +1,3 @@
-1 5 int main(void)
-1 4 char a()
-1 7 static void b(int a)
+1 05 int main(void)
+1 04 char a()
+1 07 static void b(int a)

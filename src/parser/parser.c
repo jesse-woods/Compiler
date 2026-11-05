@@ -25,7 +25,7 @@ static bool is_type_specifier(const Token * token) {
     }
     return false;
 }
-/*----------------------------------------------------------------
+ /*---------------------------------------------------------------
  * Currently returns true only for keywords "static".
  * TODO: Support "auto", "register", "extern" and "typedef" as well,
  *  when they become valid prefixes.

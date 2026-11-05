@@ -1,23 +1,23 @@
-1 3 (void)
-0 0 (void, int a)
-0 0 (,int a)
-0 0 ,float b)
-1 7 (int a, double b)
-0 0 (int a,,float b)
-1 8 (long int a, float b)
-0 0 (int a, short b,)
-0 0 (char a,
-0 0 (
-0 0 )
-0 0 (int a
-0 0 (int a,
-0 0 (int a,)
-0 0 (int a float b)
-0 0 (int a; float b)
-0 0 (int a, void)
-0 0 (void a)
-0 0 (unsigned float a)
-0 0 (int a, unsigned float b)
-1 4 (int a)
+1 03 (void)
+0 00 (void, int a)
+0 00 (,int a)
+0 00 ,float b)
+1 07 (int a, double b)
+0 00 (int a,,float b)
+1 08 (long int a, float b)
+0 00 (int a, short b,)
+0 00 (char a,
+0 00 (
+0 00 )
+0 00 (int a
+0 00 (int a,
+0 00 (int a,)
+0 00 (int a float b)
+0 00 (int a; float b)
+0 00 (int a, void)
+0 00 (void a)
+0 00 (unsigned float a)
+0 00 (int a, unsigned float b)
+1 04 (int a)
 1 10 (int a, float b, char c)
-1 2 ()
+1 02 ()

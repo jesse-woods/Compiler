@@ -36,8 +36,8 @@ void test_runner(char* file_contents, const enum PARSER_FUNCTION_NAME function_n
     while (line != nullptr) {
         bool expected_result = true;
         if (line[0] == '0'){expected_result = false;}
-        const size_t expected_position = line[2] - '0';
-        line = line + 4;
+        const size_t expected_position = ((line[2] - '0') * 10) + (line[3] - '0');
+        line = line + 5;
 
         const TokenStream* stream = lexical_analyzer(line);
         if (!test_parse_function(stream, function_name, expected_result, expected_position)) {

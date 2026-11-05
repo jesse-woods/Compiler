@@ -16,6 +16,13 @@ static void run_tests();
 
 
 int main(const int argc, char *argv[]) {
+
+  if(argc < 2) {
+    fprintf(stderr,
+           "Usage: %s [-l] [path]  Run Lexer\n       %s [-p] [path]  Run "
+           "Parser\n       %s [-t]         Run Tests\n",
+           argv[0], argv[0], argv[0]);
+  }
   int opt = 0;
   while ((opt = getopt(argc, argv, "atl:p:")) != -1) {
     const char *fileFromArgs;
