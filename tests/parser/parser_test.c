@@ -11,25 +11,38 @@
 #include "parser/parser_function_names.h"
 #include "lexer/token_stream/token_stream.h"
 
-static void test_runner(char*, enum PARSER_FUNCTION_NAME);
-void run_parser_tests() {
+static int test_runner(char*, enum PARSER_FUNCTION_NAME);
+
+int run_parser_tests(const char * test_name) {
+
+    int return_status = 1;
 
     printf("\n----------------------------Parser helper function tests---------------------------------\n\n");
 
-    //Run tests for is_parameter functionality
-    char* file_contents = read_file_to_memory("tests/parser/parser_function_tests/is_parameter_test_file.c");
-    test_runner(file_contents, IS_PARAMETER);
-    free(file_contents);
-    //Run tests for is_parameter_list functionality
-    char* file_contents_2 = read_file_to_memory("tests/parser/parser_function_tests/is_parameter_list_test_file.c");
-    test_runner(file_contents_2, IS_PARAMETER_LIST);
-    free(file_contents_2);
-    //Run tests for is_function_definition functionality
-    char* file_contents_3 = read_file_to_memory("tests/parser/parser_function_tests/is_function_definition_test_file.c");
-    test_runner(file_contents_3, IS_FUNCTION_DEFINITION);
-    free(file_contents_3);
+    if(strcmp(test_name, "is-parameter") == 0){
+        //Run tests for is_parameter functionality
+        char* file_contents = read_file_to_memory("tests/parser/parser_function_tests/is_parameter_test_file.c");
+        return_status = test_runner(file_contents, IS_PARAMETER);
+        free(file_contents);
+    }
+    else if(strcmp(test_name, "is-parameter-list") == 0){
+        //Run tests for is_parameter_list functionality
+        char* file_contents_2 = read_file_to_memory("tests/parser/parser_function_tests/is_parameter_list_test_file.c");
+        return_status = test_runner(file_contents_2, IS_PARAMETER_LIST);
+        free(file_contents_2);
+    }
+    else if(strcmp(test_name, "is-function-definition") == 0){
+        //Run tests for is_function_definition functionality
+        char* file_contents_3 = read_file_to_memory("tests/parser/parser_function_tests/is_function_definition_test_file.c");
+        return_status = test_runner(file_contents_3, IS_FUNCTION_DEFINITION);
+        free(file_contents_3);
+    }
+    else{
+        printf("ERROR: invalid argument for test function entered.\n");
+    }
+    return return_status;
 }
-void test_runner(char* file_contents, const enum PARSER_FUNCTION_NAME function_name) {
+int test_runner(char* file_contents, const enum PARSER_FUNCTION_NAME function_name) {
 
     char *line = strtok(file_contents, "\r\n");
     bool passed_all_tests = true;
@@ -49,5 +62,7 @@ void test_runner(char* file_contents, const enum PARSER_FUNCTION_NAME function_n
     }
     if (passed_all_tests) {
         printf("Parser function number: %d All tests passed!\n\n", function_name);
+        return EXIT_SUCCESS;
     }
+    return EXIT_FAILURE;
 }

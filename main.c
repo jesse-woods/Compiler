@@ -11,7 +11,7 @@
 static bool isCFile(const char *);
 static void lex_file(const char*);
 static void parse_file(const char*);
-static void run_tests();
+static int run_tests(const char* test);
 
 
 
@@ -24,15 +24,15 @@ int main(const int argc, char *argv[]) {
            argv[0], argv[0], argv[0]);
   }
   int opt = 0;
-  while ((opt = getopt(argc, argv, "atl:p:")) != -1) {
-    const char *fileFromArgs;
+  while ((opt = getopt(argc, argv, "at:l:p:")) != -1) {
+    const char *argument;
     switch (opt) {
     case 'a':
       printf("Option a selected\n");
       break;
     case 'l':
       printf("Lexer called\n");
-      fileFromArgs = optarg;
+      argument = optarg;
       if (isCFile(optarg)) {
         printf("%s\n", optarg);
         lex_file(optarg);
@@ -40,16 +40,18 @@ int main(const int argc, char *argv[]) {
       break;
     case 'p':
       printf("Parser called\n");
-      fileFromArgs = optarg;
-      if (isCFile(fileFromArgs)) {
-        printf("%s\n", fileFromArgs);
+      argument = optarg;
+      if (isCFile(argument)) {
+        printf("%s\n", argument);
+        parse_file(argument);
       }
-      parse_file(fileFromArgs);
+
       break;
     case 't':
         printf("Tests called\n");
-        run_tests();
-        break;
+        argument = optarg;
+        printf("%s\n", argument);
+        return run_tests(argument);
     case '?':
       fprintf(stderr,
               "Usage: %s [-l] [path]  Run Lexer\n       %s [-p] [path]  Run "
@@ -95,21 +97,31 @@ static void parse_file(const char* file) {
   free_stream(stream);
   free(file_contents);
 }
-static void run_tests() {
-  lex_file("tests/lexer/test.c");
-  char*  golden_file_contents = read_file_to_memory("tests/lexer/test.golden");
-  char* compared_test = read_file_to_memory("out.l");
+static int run_tests(const char * test) {
 
-  if (strcmp(compared_test, golden_file_contents) == 0) {
-    printf("Files match! Test passed.\n");
-  }
-  else {
-    printf("Files do not match! Test failed.\n");
-  }
+  int return_value = 1;
 
-  free(golden_file_contents);
-  free(compared_test);
-  run_parser_tests();
+  if(strcmp(test, "lexer-test") == 0){
+    lex_file("tests/lexer/test.c");
+    char*  golden_file_contents = read_file_to_memory("tests/lexer/test.golden");
+    char* compared_test = read_file_to_memory("out.l");
+
+
+    if (strcmp(compared_test, golden_file_contents) == 0) {
+      printf("Files match! Test passed.\n");
+      return_value = EXIT_SUCCESS;
+    }
+    else {
+      printf("Files do not match! Test failed.\n");
+      return_value = EXIT_FAILURE;
+    }
+    free(golden_file_contents);
+    free(compared_test);
+  }
+  else{
+    return_value = run_parser_tests(test);
+  }
+  return return_value;
 }
 
 

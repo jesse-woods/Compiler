@@ -5,5 +5,5 @@
 #ifndef COMPILER_PARSER_TEST_H
 #define COMPILER_PARSER_TEST_H
 
-void run_parser_tests();
+int run_parser_tests(const char*);
 #endif //COMPILER_PARSER_TEST_H

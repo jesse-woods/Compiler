@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.27)
 project(Compiler C)
+include(CTest)
 
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED On)
@@ -30,6 +31,31 @@ add_executable(Compiler
         include/tests/parser_test.h
         include/parser/parser_function_names.h
 )
+if(BUILD_TESTING)
+    add_test(
+        NAME LexerTest
+        COMMAND $<TARGET_FILE:Compiler> -t lexer-test
+    )
+    add_test(
+        NAME ParserFunctionTest1
+        COMMAND $<TARGET_FILE:Compiler> -t is-parameter
+    )
+    add_test(
+        NAME ParserFunctionTest2
+        COMMAND $<TARGET_FILE:Compiler> -t is-parameter-list
+    )
+    add_test(
+        NAME ParserFunctionTest3
+        COMMAND $<TARGET_FILE:Compiler> -t is-function-definition
+    )
+    set_tests_properties(
+        LexerTest
+        ParserFunctionTest1
+        ParserFunctionTest2
+        ParserFunctionTest3
+        PROPERTIES WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    )
+endif()
 
 target_include_directories(Compiler PRIVATE include)
 
