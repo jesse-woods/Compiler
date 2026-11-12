@@ -6,9 +6,22 @@
 #include "lexer/token_stream/token_stream.h"
 #include "parser/parser_function_names.h"
 
+/*-----------------------------------------------------------------
+ * parser.c
+ *
+ * Naming conventions:
+ *
+ * is_*()       Examines a single token and returns a boolean.
+ *
+ * is_valid_*() Analyzes a sequence of tokens against C syntax rules.
+ *              Returns true and advances position on success.
+ *              Returns false and leaves position unchanged on failure.
+ *
+ * ---------------------------------------------------------------*/
+
 static bool is_type_specifier(const Token * token) {
 
-    if (token == nullptr) {
+    if (token == nullptr || token->slice == nullptr) {
         printf("Error: attempt to parse a NULL token.\n");
         return false;
     }
@@ -49,7 +62,7 @@ static bool is_storage_class_specifier(const Token * token) {
     return false;
 }
 static bool is_signed_or_unsigned(const Token * token) {
-    if (token == nullptr) {
+    if (token == nullptr || token->slice == nullptr){
         printf("Error: attempt to parse a NULL token.\n");
         return false;
     }
@@ -73,7 +86,7 @@ static bool is_type_qualifier(const Token * token) {
     return false;
 }
 static bool is_struct_or_union(const Token * token) {
-    if (token == nullptr) {
+    if (token == nullptr || token->slice == nullptr){
         printf("Error: attempt to parse a NULL token.\n");
         return false;
     }
@@ -86,7 +99,7 @@ static bool is_struct_or_union(const Token * token) {
     return false;
 }
 static bool is_short_or_long(const Token * token) {
-    if (token == nullptr) {
+    if (token == nullptr || token->slice == nullptr){
         printf("Error: attempt to parse a NULL token.\n");
         return false;
     }
@@ -99,7 +112,7 @@ static bool is_short_or_long(const Token * token) {
     return false;
 }
 static bool is_declaration_specifier(const Token * token) {
-    if (token == nullptr) {
+    if (token == nullptr || token->slice == nullptr) {
         printf("Error: attempt to parse a NULL token.\n");
         return false;
     }
@@ -114,7 +127,7 @@ static bool is_declaration_specifier(const Token * token) {
  * TODO implement <declarator> ::= {<pointer>}? <direct-declarator>
  * -------------------------------------------------------------*/
 static bool is_declarator(const Token * token) {
-    if (token == nullptr) {
+    if (token == nullptr || token->slice == nullptr) {
         printf("Error: attempt to parse a NULL token.\n");
         return false;
     }
@@ -124,7 +137,7 @@ static bool is_declarator(const Token * token) {
     return false;
 }
 static bool is_specifier_qualifier(const Token * token) {
-    if (token == nullptr) {
+    if (token == nullptr || token->slice == nullptr) {
         printf("Error: attempt to parse a NULL token.\n");
         return false;
     }
@@ -256,7 +269,7 @@ static bool is_valid_declaration_specifier_sequence(const TokenStream *stream, s
     }
     return false;
 }
-static bool is_parameter(const TokenStream *stream , size_t *position) {
+static bool is_valid_parameter(const TokenStream *stream , size_t *position) {
 
     //Memory guards
     if (stream == nullptr || stream->tokens == nullptr) {
@@ -285,7 +298,7 @@ static bool is_parameter(const TokenStream *stream , size_t *position) {
     return false;
 }
 
-static bool is_parameter_list(const TokenStream* stream, size_t * position) {
+static bool is_valid_parameter_list(const TokenStream* stream, size_t * position) {
     if (stream == nullptr || stream->tokens == nullptr) {
         printf("Error: attempt to parse a NULL token stream.\n");
         return false;
@@ -312,7 +325,7 @@ static bool is_parameter_list(const TokenStream* stream, size_t * position) {
     if (temporary_position + 1 < stream->size) {
         temporary_position++;
     }
-    while (is_parameter(stream, &temporary_position)){
+    while (is_valid_parameter(stream, &temporary_position)){
         temporary_position++;
         if (token_at(stream, temporary_position - 1)->type == R_PARENTHESES){
             *position = temporary_position;
@@ -322,11 +335,15 @@ static bool is_parameter_list(const TokenStream* stream, size_t * position) {
     return false;
 }
 /*------------------------------------------------------------------------------
-*
-* <function-definition> ::= {<declaration-specifier>}* <declarator> {<declaration>}* <compound-statement>
-*
-* ---------------------------------------------------------------------------*/
-static bool is_function_definition(const TokenStream *stream , size_t *position) {
+ * <function-header> ::= {<type-qualifier> | <storage-class-specifier>}*
+ *     <declaration-specifier-sequence>
+ *     <identifier> "(" <parameter-list>? ")"
+ * Current implementation requires specifiers/qualifiers in this order.        *
+ * For example, "volatile int a()" is accepted, but "int volatile a()" is not.
+ *
+ * TODO: Support flexible ordering of declaration specifiers and qualifiers.
+ * ---------------------------------------------------------------------------*/
+static bool is_valid_function_header(const TokenStream *stream , size_t *position) {
 
     if (stream == nullptr || stream->tokens == nullptr) {
         printf("Error: attempt to parse a NULL token stream.\n");
@@ -340,14 +357,31 @@ static bool is_function_definition(const TokenStream *stream , size_t *position)
         printf("Attempt to parse a function definition beyond end of TokenStream.\n");
         return false;
     }
+
     size_t temporary_position = *position;
 
-    printf("Current temp_pos: %zu\n", temporary_position);
-    while(is_declaration_specifier(token_at(stream, temporary_position))){
+    if((temporary_position < stream->size - 2) &&
+        ((is_type_qualifier(token_at(stream, temporary_position)) && is_storage_class_specifier(token_at(stream, temporary_position + 1))) ||
+            (is_storage_class_specifier(token_at(stream, temporary_position)) && is_type_qualifier(token_at(stream, temporary_position + 1))))){
+            temporary_position+=2;
+    }
+    else if((temporary_position < stream->size -1) && (is_type_qualifier(token_at(stream, temporary_position)) || is_storage_class_specifier(token_at(stream, temporary_position)))){
         temporary_position++;
-    };
-    printf("Hi, New temp_pos: %zu\n", temporary_position);
-    if(is_declarator(token_at(stream, temporary_position))){
+    }
+    //handle void as a return value as a special case
+    if(temporary_position < stream->size - 2){
+        if(token_at(stream, temporary_position)->type == KEYWORD && compare_string_slice_to_c_string(token_at(stream, temporary_position)->slice, "void")){
+            temporary_position++;
+            if(token_at(stream, temporary_position)->type == IDENTIFIER){
+                temporary_position++;
+                if(is_valid_parameter_list(stream, &temporary_position)){
+                    *position = temporary_position;
+                    return true;
+                }
+            }else{ return false; }
+        }
+    }
+    if(is_valid_declaration_specifier_sequence(stream, &temporary_position) && is_valid_parameter_list(stream, &temporary_position)){
         *position = temporary_position;
         return true;
     }
@@ -359,15 +393,16 @@ void parse_token_stream(const TokenStream* stream) {
         return;
     }
     size_t position = 0;
-    if (is_function_definition(stream, &position)) {
+    if (is_valid_function_header(stream, &position)) {
         printf("Working so far...\n");
     }
     printf("New position: %lu\n", position);
 }
+
 bool test_parse_function(const TokenStream *stream, const enum PARSER_FUNCTION_NAME function_name, const bool expected_result, size_t expected_position) {
-    if (function_name == IS_PARAMETER) {
+    if (function_name == IS_VALID_PARAMETER) {
         size_t position = 0;
-        const bool function_return_value = is_parameter(stream, &position);
+        const bool function_return_value = is_valid_parameter(stream, &position);
         if (function_return_value != expected_result || position != expected_position) {
 
             printf("Test failed.\n");
@@ -376,19 +411,18 @@ bool test_parse_function(const TokenStream *stream, const enum PARSER_FUNCTION_N
             return false;
         }
     }
-    if (function_name == IS_PARAMETER_LIST) {
+    if (function_name == IS_VALID_PARAMETER_LIST) {
         size_t position = 0;
-        const bool function_return_value = is_parameter_list(stream, &position);
+        const bool function_return_value = is_valid_parameter_list(stream, &position);
         if (function_return_value != expected_result || position != expected_position) {
             printf("Test failed.\n");
             printf("Expected result: %d Actual result: %d Expected position: %lu Actual position: %lu\n", expected_result, function_return_value, expected_position, position);
             return false;
         }
     }
-    if (function_name == IS_FUNCTION_DEFINITION) {
+    if (function_name == IS_VALID_FUNCTION_HEADER) {
         size_t position = 0;
-        printf("We're calling this.\n");
-        const bool function_return_value = is_function_definition(stream, &position);
+        const bool function_return_value = is_valid_function_header(stream, &position);
         if (function_return_value != expected_result || position != expected_position) {
             printf("Test failed.\n");
             printf("Expected result: %d Actual result: %d Expected position: %lu Actual position: %lu\n", expected_result, function_return_value, expected_position, position);

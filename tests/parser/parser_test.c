@@ -22,19 +22,19 @@ int run_parser_tests(const char * test_name) {
     if(strcmp(test_name, "is-parameter") == 0){
         //Run tests for is_parameter functionality
         char* file_contents = read_file_to_memory("tests/parser/parser_function_tests/is_parameter_test_file.c");
-        return_status = test_runner(file_contents, IS_PARAMETER);
+        return_status = test_runner(file_contents, IS_VALID_PARAMETER);
         free(file_contents);
     }
     else if(strcmp(test_name, "is-parameter-list") == 0){
         //Run tests for is_parameter_list functionality
         char* file_contents_2 = read_file_to_memory("tests/parser/parser_function_tests/is_parameter_list_test_file.c");
-        return_status = test_runner(file_contents_2, IS_PARAMETER_LIST);
+        return_status = test_runner(file_contents_2, IS_VALID_PARAMETER_LIST);
         free(file_contents_2);
     }
     else if(strcmp(test_name, "is-function-definition") == 0){
         //Run tests for is_function_definition functionality
-        char* file_contents_3 = read_file_to_memory("tests/parser/parser_function_tests/is_function_definition_test_file.c");
-        return_status = test_runner(file_contents_3, IS_FUNCTION_DEFINITION);
+        char* file_contents_3 = read_file_to_memory("tests/parser/parser_function_tests/is_function_header_test_file.c");
+        return_status = test_runner(file_contents_3, IS_VALID_FUNCTION_HEADER);
         free(file_contents_3);
     }
     else{
