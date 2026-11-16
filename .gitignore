@@ -1,0 +1,7 @@
+.idea/
+.kdev4/
+*.kdev4
+build/
+cmake-build-*/
+Testing/
+compile_commands.json
